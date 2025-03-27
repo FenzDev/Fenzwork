@@ -16,6 +16,7 @@ namespace FenzExt
         {
             _Graphics = new GraphicsDeviceManager(this);
             _Core = core;
+            _Core._MG = this;
             Content.RootDirectory = "Assets";
 
         }

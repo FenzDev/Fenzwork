@@ -13,7 +13,10 @@ namespace FenzExt.InputSystem
     {
         public BindingTriggers(KeyCombination key0, KeyCombination key1 = default, Buttons gamepad = Buttons.None, MouseTriggers mouse = MouseTriggers.None)
         {
-
+            Key0 = key0;
+            Key1 = key1;
+            Gamepad = gamepad;
+            Mouse = mouse;
         }
 
         public KeyCombination Key0;

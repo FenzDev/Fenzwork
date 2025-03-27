@@ -12,6 +12,13 @@ namespace FenzExt.InputSystem
     /// </summary>
     public static class Input
     {
+        // Previouse states
+        static MouseState _PreviousMouseState;
+        static KeyboardState _PreviousKeyboardState;
+        static GamePadState?[] _PreviousGamepadStates = new GamePadState?[4];
+        static TouchCollection _PreviousTouches;
+
+
         /// <summary>
         /// Gets the current state of the mouse.
         /// </summary>
@@ -30,7 +37,7 @@ namespace FenzExt.InputSystem
         /// <summary>
         /// Gets the current touch panel state.
         /// </summary>
-        public static TouchCollection Touch { get; private set; }
+        public static TouchCollection Touches { get; private set; }
 
         /// <summary>
         /// Gets the list of registered control bindings.
@@ -62,6 +69,8 @@ namespace FenzExt.InputSystem
             {
                 var binding = new ControlBinding() { Name = name, _Trigger = new BindingTriggers(key0, key1, gamepad, mouse) };
                 Bindings.Add(binding);
+
+                return binding;
             }
             return null; // Note: returns null if the binding already exists or after registration.
         }
@@ -90,6 +99,12 @@ namespace FenzExt.InputSystem
         // Updates the input states for mouse, keyboard, gamepad, and touch.
         internal static void Update(GameTime gameTime)
         {
+            // assigning previous states
+            _PreviousKeyboardState = KeyboardState;
+            _PreviousMouseState = MouseState;
+            GamepadStates.CopyTo(_PreviousGamepadStates, 0);
+            _PreviousTouches = Touches;
+
             MouseState = Mouse.GetState();
             KeyboardState = Keyboard.GetState();
 
@@ -102,7 +117,7 @@ namespace FenzExt.InputSystem
                     GamepadStates[i] = null;
             }
 
-            Touch = TouchPanel.GetState();
+            Touches = TouchPanel.GetState();
 
             // Update all registered control bindings.
             foreach (var bind in Bindings)
@@ -230,6 +245,11 @@ namespace FenzExt.InputSystem
         // Applies mouse input to the binding based on the specified trigger.
         static void _ApplyMouseState(ControlBinding binding, MouseTriggers trigger)
         {
+
+            if (MouseState.ScrollWheelValue > 0)
+            {
+
+            }
             switch (trigger)
             {
                 case MouseTriggers.Left:
@@ -242,16 +262,16 @@ namespace FenzExt.InputSystem
                     binding._State = MouseState.RightButton == ButtonState.Pressed;
                     break;
                 case MouseTriggers.ScrollUp:
-                    binding._State = MouseState.ScrollWheelValue > 0;
+                    binding._State = MouseState.ScrollWheelValue - _PreviousMouseState.ScrollWheelValue > 0;
                     break;
                 case MouseTriggers.ScrollDown:
-                    binding._State = MouseState.ScrollWheelValue < 0;
+                    binding._State = MouseState.ScrollWheelValue - _PreviousMouseState.ScrollWheelValue < 0;
                     break;
                 case MouseTriggers.HScrollRight:
-                    binding._State = MouseState.HorizontalScrollWheelValue > 0;
+                    binding._State = MouseState.HorizontalScrollWheelValue - _PreviousMouseState.HorizontalScrollWheelValue > 0;
                     break;
                 case MouseTriggers.HScrollLeft:
-                    binding._State = MouseState.HorizontalScrollWheelValue < 0;
+                    binding._State = MouseState.HorizontalScrollWheelValue - _PreviousMouseState.HorizontalScrollWheelValue < 0;
                     break;
                 case MouseTriggers.X1:
                     binding._State = MouseState.XButton1 == ButtonState.Pressed;
