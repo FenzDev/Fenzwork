@@ -3,7 +3,11 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.11.35312.102
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FenzExt", "FenzExt\FenzExt.csproj", "{A429F892-C30F-43A9-9650-0790B10FC3CC}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FenzExt", "FenzExt\FenzExt.csproj", "{A429F892-C30F-43A9-9650-0790B10FC3CC}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{E6D3E9B2-DA8E-41A9-A155-FC59B0C5778E}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Sandbox", "Sandbox\Sandbox.csproj", "{52AC8A0E-A5CA-499E-9E8D-48A9433A57F6}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -15,9 +19,16 @@ Global
 		{A429F892-C30F-43A9-9650-0790B10FC3CC}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{A429F892-C30F-43A9-9650-0790B10FC3CC}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{A429F892-C30F-43A9-9650-0790B10FC3CC}.Release|Any CPU.Build.0 = Release|Any CPU
+		{52AC8A0E-A5CA-499E-9E8D-48A9433A57F6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{52AC8A0E-A5CA-499E-9E8D-48A9433A57F6}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{52AC8A0E-A5CA-499E-9E8D-48A9433A57F6}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{52AC8A0E-A5CA-499E-9E8D-48A9433A57F6}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{52AC8A0E-A5CA-499E-9E8D-48A9433A57F6} = {E6D3E9B2-DA8E-41A9-A155-FC59B0C5778E}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {D10E88C0-66D8-4BB0-A0B2-8F6C6E1A5D71}
