@@ -10,10 +10,35 @@ namespace FenzExt
     {
         public static void Run(GameCore core)
         {
+            bool alreadyRunning = false;
+
             using (MGGame mg = new(core))
             {
-                mg.Run();
+#if !DEBUG
+                bool willContinue = true;
+
+                while (willContinue)
+                {
+                    try
+                    {
+                        if (alreadyRunning)
+                            return;
+                        alreadyRunning = true;
+#endif
+                        mg.Run();
+
+#if !DEBUG
+                        alreadyRunning = false;
+                        willContinue = !mg._WillQuit;
+                    }
+                    catch (Exception ex)
+                    {
+                        mg._Core.Error(ex);
+                    }
+            }
+#endif
             }
         }
+
     }
 }

@@ -1,4 +1,5 @@
-﻿using Microsoft.Xna.Framework;
+﻿using FenzExt.Graphics;
+using Microsoft.Xna.Framework;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -14,9 +15,10 @@ namespace FenzExt
         public GameWindow Window => _MG.Window;
 
         protected internal virtual void Init() { }
-        protected internal virtual void PreDraw() { }
-        protected internal abstract void Draw();
+        protected internal virtual void PreDraw(DrawingHelper helper) { }
+        protected internal abstract void Draw(DrawingHelper helper);
         protected internal virtual void PreUpdate() { }
         protected internal abstract void Update();
+        protected internal virtual void Error(Exception ex) { }
     }
 }

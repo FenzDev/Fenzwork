@@ -3,6 +3,7 @@ using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using FenzExt.InputSystem;
 using System;
+using FenzExt.Graphics;
 
 namespace FenzExt
 {
@@ -11,6 +12,8 @@ namespace FenzExt
         internal GraphicsDeviceManager _Graphics;
         internal SpriteBatch _SpriteBatch;
         internal GameCore _Core;
+        internal bool _WillQuit;
+        internal DrawingHelper drawingHelper = new DrawingHelper();
 
         public MGGame(GameCore core)
         {
@@ -32,6 +35,10 @@ namespace FenzExt
         protected override void LoadContent()
         {
             _SpriteBatch = new SpriteBatch(GraphicsDevice);
+        
+            drawingHelper.Batch = _SpriteBatch;
+            drawingHelper.GService = _Graphics;
+            drawingHelper.GDevice = GraphicsDevice;
         }
 
         protected override void Update(GameTime gameTime)
@@ -43,8 +50,8 @@ namespace FenzExt
 
         protected override void Draw(GameTime gameTime)
         {
-            _Core.PreDraw();
-            _Core.Draw();
+            _Core.PreDraw(drawingHelper);
+            _Core.Draw(drawingHelper);
         }
     }
 }
