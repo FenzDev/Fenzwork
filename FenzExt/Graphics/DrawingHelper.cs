@@ -9,6 +9,7 @@ namespace FenzExt.Graphics
         public GraphicsDevice GDevice { get; internal set; }
         public GraphicsDeviceManager GService {  get; internal set; }
         public SpriteBatch Batch {  get; internal set; }
-        
+        public GameTime Time { get; internal set; }
+
     }
 }

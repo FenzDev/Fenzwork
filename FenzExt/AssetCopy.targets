@@ -1,0 +1,38 @@
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+
+	<!-- Gather all .fx files under the Assets folder (including subfolders) -->
+	<ItemGroup>
+		<FXSource Include="Assets\**\*.fx" />
+	</ItemGroup>
+
+	<!-- Target to compile .fx files into .mgfx files without .mgcb file -->
+	<Target Name="CompileFXToMGFX" BeforeTargets="CopyFilesToOutputDirectory">
+		<!-- Log the start of the target -->
+		<Message Text="Starting CompileFXToMGFX target..." Importance="High" />
+
+		<!-- Check if we have any .fx files -->
+		<Message Text="Found %(FXSource.Count) .fx files." Importance="High" />
+
+		<!-- Compile each .fx file to .mgfx -->
+		<Exec Command="mgfxc &quot;%(FXSource.FullPath)&quot; &quot;%(FXSource.RelativeDir)%(FXSource.Filename).mgfx&quot; /Profile:OpenGL"
+			  WorkingDirectory="$(MSBuildProjectDirectory)" ContinueOnError="false" />
+
+		<!-- Log the end of the target -->
+		<Message Text="CompileFXToMGFX target completed." Importance="High" />
+	</Target>
+
+	<!-- Copy all files from the Assets folder except the .fx files -->
+	<ItemGroup>
+		<Content Include="Assets\**\*.*" Exclude="Assets\**\*.fx">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</Content>
+	</ItemGroup>
+
+	<!-- Ensure that all .mgfx files (compiled from .fx) are also copied to output -->
+	<ItemGroup>
+		<Content Include="Assets\**\*.mgfx">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</Content>
+	</ItemGroup>
+
+</Project>

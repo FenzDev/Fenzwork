@@ -6,9 +6,11 @@
     <PublishReadyToRun>false</PublishReadyToRun>
     <TieredCompilation>false</TieredCompilation>
   </PropertyGroup>
-	
-  <ItemGroup>
-    <ProjectReference Include="..\..\FenzExt\FenzExt.csproj" />
-  </ItemGroup>
+
+	<ItemGroup>
+        <ProjectReference Include="..\..\FenzExt\FenzExt.csproj" />
+	</ItemGroup>
+
+	<Import Project="..\..\FenzExt\AssetCopy.targets" />
 
 </Project>
