@@ -4,9 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace FenzExt.AssetsSystem
+namespace Fenzwork.Systems.Assets
 {
-    internal interface IDynamicAsset
+    internal interface IAssetHandle
     {
         public AssetID ID { get; }
         public bool IsLoaded { get; internal set; }

@@ -1,4 +1,4 @@
-﻿using FenzExt.Graphics;
+﻿using Fenzwork.Graphics;
 using FontStashSharp;
 using System;
 using System.Collections.Generic;
@@ -7,7 +7,7 @@ using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace FenzExt
+namespace Fenzwork
 {
     public class FontBase
     {

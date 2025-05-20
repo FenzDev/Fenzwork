@@ -1,12 +1,13 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
-using FenzExt.InputSystem;
 using System;
-using FenzExt.Graphics;
-using FenzExt.AssetsSystem;
+using Fenzwork.Graphics;
+using Fenzwork.Services.HotCache;
+using Fenzwork.Systems.Assets;
+using Fenzwork.Systems.Input;
 
-namespace FenzExt
+namespace Fenzwork
 {
     public class MGGame : Game
     {
@@ -45,8 +46,10 @@ namespace FenzExt
 
         protected override void LoadContent()
         {
+            CommunicationHandler.EnsureHotCacheRunning();
+
             _SpriteBatch = new SpriteBatch(GraphicsDevice);
-        
+
             drawingHelper.Batch = _SpriteBatch;
             drawingHelper.GService = _Graphics;
             drawingHelper.GDevice = GraphicsDevice;

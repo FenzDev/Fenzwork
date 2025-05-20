@@ -2,7 +2,7 @@
 using Microsoft.Xna.Framework.Graphics;
 using System;
 
-namespace FenzExt.Graphics
+namespace Fenzwork.Graphics
 {
     public class DrawingHelper
     {

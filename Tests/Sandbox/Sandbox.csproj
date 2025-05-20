@@ -5,12 +5,17 @@
     <RollForward>Major</RollForward>
     <PublishReadyToRun>false</PublishReadyToRun>
     <TieredCompilation>false</TieredCompilation>
+	  <MonoGamePlatform>Desktop</MonoGamePlatform>
   </PropertyGroup>
 
 	<ItemGroup>
-        <ProjectReference Include="..\..\FenzExt\FenzExt.csproj" />
+		<PackageReference Include="MonoGame.Framework.DesktopGL" Version="3.8.3" />
 	</ItemGroup>
 
-	<Import Project="..\..\FenzExt\AssetCopy.targets" />
+	<ItemGroup>
+	  <ProjectReference Include="..\..\FenzExt\Fenzwork.csproj" />
+	</ItemGroup>
+
+	<Import Project="..\..\FenzExt\Game.targets" />
 
 </Project>

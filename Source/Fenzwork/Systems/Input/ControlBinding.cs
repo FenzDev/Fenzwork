@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace FenzExt.InputSystem
+namespace Fenzwork.Systems.Input
 {
     public class ControlBinding
     {
@@ -18,10 +18,9 @@ namespace FenzExt.InputSystem
 
         public bool IsDown => _State;
         public bool IsUp => !_State;
-        public bool IsJustPressed => _State && !_PreviousState; 
+        public bool IsJustPressed => _State && !_PreviousState;
         public bool IsJustReleased => !_State && _PreviousState;
         public float Value => _Value;
 
     }
 }
- 

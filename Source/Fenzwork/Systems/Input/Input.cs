@@ -5,7 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 
-namespace FenzExt.InputSystem
+namespace Fenzwork.Systems.Input
 {
     /// <summary>
     /// Provides centralized input state tracking and binding registration for various input devices.
@@ -108,7 +108,7 @@ namespace FenzExt.InputSystem
             MouseState = Mouse.GetState();
             KeyboardState = Keyboard.GetState();
 
-            // Update gamepad states for up to 4 players.
+            // Tick gamepad states for up to 4 players.
             for (int i = 0; i < GamepadStates.Length; i++)
             {
                 if (GamePad.GetCapabilities(i).IsConnected)
@@ -119,7 +119,7 @@ namespace FenzExt.InputSystem
 
             Touches = TouchPanel.GetState();
 
-            // Update all registered control bindings.
+            // Tick all registered control bindings.
             foreach (var bind in Bindings)
             {
                 bind._PreviousState = bind._State;

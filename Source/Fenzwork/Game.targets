@@ -5,19 +5,16 @@
 		<FXSource Include="Assets\**\*.fx" />
 	</ItemGroup>
 
-	<!-- Target to compile .fx files into .mgfx files without .mgcb file -->
-	<Target Name="CompileFXToMGFX" BeforeTargets="CopyFilesToOutputDirectory">
-		<!-- Log the start of the target -->
+	<!-- Incremental build target to compile .fx files into .mgfx files only when necessary -->
+	<Target Name="CompileFXToMGFX" BeforeTargets="CopyFilesToOutputDirectory"
+			Inputs="@(FXSource)"
+			Outputs="@(FXSource -> '%(RelativeDir)%(Filename).mgfx')">
 		<Message Text="Starting CompileFXToMGFX target..." Importance="High" />
 
-		<!-- Check if we have any .fx files -->
-		<Message Text="Found %(FXSource.Count) .fx files." Importance="High" />
-
-		<!-- Compile each .fx file to .mgfx -->
+		<!-- For each .fx file, call mgfxc to compile it into its .mgfx file -->
 		<Exec Command="mgfxc &quot;%(FXSource.FullPath)&quot; &quot;%(FXSource.RelativeDir)%(FXSource.Filename).mgfx&quot; /Profile:OpenGL"
 			  WorkingDirectory="$(MSBuildProjectDirectory)" ContinueOnError="false" />
 
-		<!-- Log the end of the target -->
 		<Message Text="CompileFXToMGFX target completed." Importance="High" />
 	</Target>
 
@@ -28,11 +25,30 @@
 		</Content>
 	</ItemGroup>
 
-	<!-- Ensure that all .mgfx files (compiled from .fx) are also copied to output -->
+	<!-- Ensure that all .mgfx files (compiled from .fx) are copied to output -->
 	<ItemGroup>
 		<Content Include="Assets\**\*.mgfx">
 			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 		</Content>
 	</ItemGroup>
 
+	
+	
+	<!--  HotCache Implemntation -->
+	<Target Name="CopyHotCacheFolder" AfterTargets="Build">
+		<PropertyGroup>
+			<HotCacheOutput>$(MSBuildThisFileDirectory)..\HotCache\bin\$(Configuration)\$(TargetFramework)\</HotCacheOutput>
+		</PropertyGroup>
+
+		<ItemGroup>
+			<HotCacheFiles Include="$(HotCacheOutput)**\*.*" />
+		</ItemGroup>
+
+		<Copy
+		  SourceFiles="@(HotCacheFiles)"
+		  DestinationFiles="@(HotCacheFiles->'$(OutputPath)%(RecursiveDir)%(Filename)%(Extension)')"
+		  SkipUnchangedFiles="true" />
+		<!-- Ensures only changed files are copied -->
+	</Target>
+	
 </Project>

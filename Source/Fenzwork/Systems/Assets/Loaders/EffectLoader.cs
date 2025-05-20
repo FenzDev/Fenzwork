@@ -1,4 +1,5 @@
-﻿using Microsoft.Xna.Framework;
+﻿using Fenzwork.Systems.Assets;
+using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using System;
 using System.Collections.Generic;
@@ -8,7 +9,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace FenzExt.AssetsSystem.Loaders
+namespace Fenzwork.Systems.Assets.Loaders
 {
     public class EffectLoader : AssetLoader<Effect>
     {

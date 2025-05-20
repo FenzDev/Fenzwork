@@ -6,7 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace FenzExt.AssetsSystem
+namespace Fenzwork.Systems.Assets
 {
     public abstract class AssetLoader<T> : IAssetLoader
     {

@@ -1,7 +1,7 @@
 ﻿using Microsoft.Xna.Framework.Input;
 using System;
 
-namespace FenzExt.InputSystem
+namespace Fenzwork.Systems.Input
 {
     /// <summary>
     /// Represents a combination of a key and its associated modifiers.

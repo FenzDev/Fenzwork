@@ -1,4 +1,5 @@
-﻿using Microsoft.Xna.Framework.Graphics;
+﻿using Fenzwork.Systems.Assets;
+using Microsoft.Xna.Framework.Graphics;
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
@@ -7,7 +8,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace FenzExt.AssetsSystem.Loaders
+namespace Fenzwork.Systems.Assets.Loaders
 {
     public class TextureLoader : AssetLoader<Texture2D>
     {

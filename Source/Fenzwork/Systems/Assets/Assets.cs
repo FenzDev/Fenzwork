@@ -1,4 +1,4 @@
-﻿using FenzExt.AssetsSystem.Loaders;
+﻿using Fenzwork.AssetsSystem.Loaders;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using System;
@@ -7,13 +7,13 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 
-namespace FenzExt.AssetsSystem
+namespace Fenzwork.Systems.Assets
 {
     public record AssetID(string Domain, string AssetName, Type CategoryType)
     {
         public override string ToString()
         {
-            var split = (Domain == "") ? "" : ":";
+            var split = Domain == "" ? "" : ":";
             return $"{Domain}{split}{AssetName} ({CategoryType.Name})";
         }
     }
@@ -22,20 +22,19 @@ namespace FenzExt.AssetsSystem
     {
         public static bool AllowMultipleDomains;
         public static string DefaultDomain = "";
-        public static string AssetsPath { get; set; }
-        public static Dictionary<Type,IAssetLoader> _Loaders = new();
-        internal static List<IDynamicAsset> _AssetsBank = new();
+        public static string MainAssetsPath { get; set; } = Path.Combine(GetTitleContainerLocation(), "Assets");
+        public static Dictionary<Type, IAssetLoader> _Loaders = new();
+        internal static List<IAssetHandle> _AssetsBank = new();
 
         internal static void Load(MGGame game)
         {
-            AssetsPath = Path.Combine(GetTitleContainerLocation(), "Assets");
 
             _Loaders.Add(typeof(Texture2D), new TextureLoader(game.GraphicsDevice));
             _Loaders.Add(typeof(Effect), new EffectLoader(game.GraphicsDevice));
 
-            LoadDomains(AssetsPath);
+            LoadDomains(MainAssetsPath);
         }
-        
+
         internal static void LoadDomains(string assetsFolder)
         {
             if (AllowMultipleDomains)
@@ -70,7 +69,7 @@ namespace FenzExt.AssetsSystem
                         var id = new AssetID(domain, assetname, loader.Key);
                         var content = loader.Value.Load($"{domain}:{assetname}", reader);
 
-                        var asset = (IDynamicAsset)getMethod.Invoke(null, [id]);
+                        var asset = (IAssetHandle)getMethod.Invoke(null, [id]);
 
                         asset.Content = content;
                         asset.IsLoaded = true;
@@ -101,8 +100,8 @@ namespace FenzExt.AssetsSystem
         internal static void Unload(MGGame game)
         {
             _Loaders.Clear();
-            
-            foreach(var asset in _AssetsBank)
+
+            foreach (var asset in _AssetsBank)
             {
                 asset.IsLoaded = false;
                 asset.Content = null;
@@ -111,17 +110,17 @@ namespace FenzExt.AssetsSystem
             _AssetsBank.Clear();
         }
 
-        public static DynamicAsset<T> Get<T>(string assetname) => Get<T>(assetname,"");
-        public static DynamicAsset<T> Get<T>(string assetname, string domain) => Get<T>(new AssetID((domain == "") ? DefaultDomain : domain, assetname, typeof(T)));
+        public static AssetHandle<T> Get<T>(string assetname) => Get<T>(assetname, "");
+        public static AssetHandle<T> Get<T>(string assetname, string domain) => Get<T>(new AssetID(domain == "" ? DefaultDomain : domain, assetname, typeof(T)));
 
-        public static DynamicAsset<T> Get<T>(AssetID assetID)
+        public static AssetHandle<T> Get<T>(AssetID assetID)
         {
-            var asset = (DynamicAsset<T>)_AssetsBank.Find(e => e.ID == assetID);
-            
+            var asset = (AssetHandle<T>)_AssetsBank.Find(e => e.ID == assetID);
+
             if (asset is not null)
                 return asset;
 
-            asset = new DynamicAsset<T>() { ID = assetID, Content = (T)_Loaders[assetID.CategoryType].DefaultObject, IsLoaded = false };
+            asset = new AssetHandle<T>() { ID = assetID, Content = (T)_Loaders[assetID.CategoryType].DefaultObject, IsLoaded = false };
             _AssetsBank.Add(asset);
 
             return asset;
@@ -138,7 +137,7 @@ namespace FenzExt.AssetsSystem
             // Get the value of the Location property (it's a static property)
             return (string)locationProperty.GetValue(null); // null because it's a static property
         }
-    
-    
+
+
     }
 }
