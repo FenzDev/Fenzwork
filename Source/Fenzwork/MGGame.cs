@@ -3,9 +3,6 @@ using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using System;
 using Fenzwork.Graphics;
-using Fenzwork.Services.HotCache;
-using Fenzwork.Systems.Assets;
-using Fenzwork.Systems.Input;
 
 namespace Fenzwork
 {
@@ -46,7 +43,6 @@ namespace Fenzwork
 
         protected override void LoadContent()
         {
-            CommunicationHandler.EnsureHotCacheRunning();
 
             _SpriteBatch = new SpriteBatch(GraphicsDevice);
 

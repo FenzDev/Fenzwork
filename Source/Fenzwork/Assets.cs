@@ -1,4 +1,5 @@
-﻿using Fenzwork.AssetsSystem.Loaders;
+﻿using Fenzwork.Systems.Assets;
+using Fenzwork.Systems.Assets.Loaders;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using System;
@@ -7,7 +8,7 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 
-namespace Fenzwork.Systems.Assets
+namespace Fenzwork
 {
     public record AssetID(string Domain, string AssetName, Type CategoryType)
     {

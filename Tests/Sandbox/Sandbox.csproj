@@ -13,9 +13,9 @@
 	</ItemGroup>
 
 	<ItemGroup>
-	  <ProjectReference Include="..\..\FenzExt\Fenzwork.csproj" />
+	  <ProjectReference Include="..\..\Source\Fenzwork\Fenzwork.csproj" />
 	</ItemGroup>
 
-	<Import Project="..\..\FenzExt\Game.targets" />
+	<Import Project="..\..\Source\Fenzwork\Game.targets" />
 
 </Project>

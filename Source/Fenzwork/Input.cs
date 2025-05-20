@@ -1,11 +1,12 @@
-﻿using Microsoft.Xna.Framework;
+﻿using Fenzwork.Systems.Input;
+using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Input;
 using Microsoft.Xna.Framework.Input.Touch;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 
-namespace Fenzwork.Systems.Input
+namespace Fenzwork
 {
     /// <summary>
     /// Provides centralized input state tracking and binding registration for various input devices.
