@@ -25,6 +25,5 @@ namespace Fenzwork
         protected internal virtual void Load() { }
         protected internal virtual void Unload() { }
         protected internal virtual void PostUnload() { }
-        protected internal virtual bool Error(Exception ex) => true;
     }
 }
