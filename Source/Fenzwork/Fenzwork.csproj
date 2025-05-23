@@ -7,8 +7,4 @@
     <PackageReference Include="MonoGame.Framework.Native" Version="3.8.3" />
   </ItemGroup>
 	
-  <ItemGroup>
-    <Folder Include="Services\" />
-  </ItemGroup>
-	
 </Project>

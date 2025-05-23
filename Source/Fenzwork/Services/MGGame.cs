@@ -4,7 +4,7 @@ using Microsoft.Xna.Framework.Input;
 using System;
 using Fenzwork.Graphics;
 
-namespace Fenzwork
+namespace Fenzwork.Services
 {
     public class MGGame : Game
     {
@@ -22,22 +22,11 @@ namespace Fenzwork
             Content.RootDirectory = "Assets";
 
         }
-        
+
         protected override void Initialize()
         {
-#if !DEBUG
-            try
-            {
-#endif
             Input.Init();
             _Core.Init();
-#if !DEBUG
-            }
-            catch (Exception ex)
-            {
-                mg._Core.Error(ex);
-            }
-#endif
             base.Initialize();
         }
 
@@ -49,74 +38,30 @@ namespace Fenzwork
             drawingHelper.Batch = _SpriteBatch;
             drawingHelper.GService = _Graphics;
             drawingHelper.GDevice = GraphicsDevice;
-#if !DEBUG
-            try
-            {
-#endif
-                _Core.PreLoad(); 
-                Assets.Load(this);
-                _Core.Load();
-#if !DEBUG
-            }
-            catch (Exception ex)
-            {
-                mg._Core.Error(ex);
-            }
-#endif
+            _Core.PreLoad();
+            Assets.Load(this);
+            _Core.Load();
         }
 
         protected override void UnloadContent()
         {
-#if !DEBUG
-            try
-            {
-#endif
             _Core.Unload();
             Assets.Unload(this);
             _Core.PostUnload();
-#if !DEBUG
-            }
-            catch (Exception ex)
-            {
-                mg._Core.Error(ex);
-            }
-#endif
         }
 
         protected override void Update(GameTime gameTime)
         {
-#if !DEBUG
-            try
-            {
-#endif
             _Core.PreUpdate();
             Input.Update(gameTime);
             _Core.Update();
-#if !DEBUG
-            }
-            catch (Exception ex)
-            {
-                mg._Core.Error(ex);
-            }
-#endif
         }
 
         protected override void Draw(GameTime gameTime)
         {
-#if !DEBUG
-            try
-            {
-#endif
-                drawingHelper.Time = gameTime;
-                _Core.PreDraw(drawingHelper);
-                _Core.Draw(drawingHelper);
-#if !DEBUG
-            }
-            catch (Exception ex)
-            {
-                mg._Core.Error(ex);
-            }
-#endif
+            drawingHelper.Time = gameTime;
+            _Core.PreDraw(drawingHelper);
+            _Core.Draw(drawingHelper);
         }
     }
 }
