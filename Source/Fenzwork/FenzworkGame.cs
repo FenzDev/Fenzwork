@@ -10,7 +10,7 @@ namespace Fenzwork
     public static class FenzworkGame
     {
         public static List<string> _AssetsPaths { get; set; } = new();
-        public static void Run(GameCore core)
+        public static void Run(string gameName, string gameShortName, GameCore core)
         {
             _AssetsPaths.Add(Assets.MainAssetsPath);
             

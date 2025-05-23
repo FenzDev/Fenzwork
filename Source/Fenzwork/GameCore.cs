@@ -13,6 +13,7 @@ namespace Fenzwork
 
     public abstract class GameCore
     {
+
         public MGGame _MG;
         public GameWindow Window => _MG.Window;
 
