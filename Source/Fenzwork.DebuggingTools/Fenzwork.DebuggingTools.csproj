@@ -9,6 +9,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Fenzwork.BuildingTools\Fenzwork.BuildingTools.csproj" />
+    <ProjectReference Include="..\Fenzwork\Fenzwork.csproj" />
   </ItemGroup>
 
 </Project>
