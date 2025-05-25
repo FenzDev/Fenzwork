@@ -18,7 +18,6 @@ namespace Fenzwork.DebuggingTools
             Console.WriteLine("Starting");
             var dirPath = Path.Combine(Path.GetTempPath(), $"FWDT_{DirUniqueHash}_Messengers");
 
-            Thread.Sleep(10000);
             var dirInfo = Directory.CreateDirectory(dirPath);
                 
             var messengerFiles = dirInfo.GetFiles();
