@@ -26,6 +26,7 @@ namespace Fenzwork.Services
         protected override void Initialize()
         {
             Input.Init();
+            DebugMessenger.Init();
             _Core.Init();
             base.Initialize();
         }
@@ -53,6 +54,7 @@ namespace Fenzwork.Services
         protected override void Update(GameTime gameTime)
         {
             _Core.PreUpdate();
+            DebugMessenger.Tick();
             Input.Update(gameTime);
             _Core.Update();
         }

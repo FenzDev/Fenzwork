@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Fenzwork.Services;
+using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
@@ -25,9 +26,6 @@ namespace Fenzwork
         [MethodImpl(MethodImplOptions.NoInlining)]
         public static void Debug(string message)
         {
-            if (!Debugger.IsAttached)
-                return;
-
             var callerAsm = Assembly.GetCallingAssembly();
             if (!IsDebugBuild(callerAsm))
                 return;
@@ -62,15 +60,16 @@ namespace Fenzwork
             {
                 case LogType.Debug:
                     Debugger.Log(2, "dbg", GenerateMessage(time, "dbg", message));
+                    DebugMessenger.Log(4, message);
                     break;
                 case LogType.Info:
-                    Debugger.Log(2, "info", GenerateMessage(time, "info", message));
+                    Debugger.Log(3, "info", GenerateMessage(time, "info", message));
                     break;
                 case LogType.Warning:
-                    Debugger.Log(1, "warn", GenerateMessage(time, "warn", message));
+                    Debugger.Log(2, "warn", GenerateMessage(time, "warn", message));
                     break;
                 case LogType.Error:
-                    Debugger.Log(0, "error", GenerateMessage(time, "error", message));
+                    Debugger.Log(1, "error", GenerateMessage(time, "error", message));
                     break;
             }
         }

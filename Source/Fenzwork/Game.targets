@@ -32,23 +32,10 @@
 		</Content>
 	</ItemGroup>
 
-	
-	
-	<!--  HotCache Implemntation -->
-	<Target Name="CopyHotCacheFolder" AfterTargets="Build">
-		<PropertyGroup>
-			<HotCacheOutput>$(MSBuildThisFileDirectory)..\HotCache\bin\$(Configuration)\$(TargetFramework)\</HotCacheOutput>
-		</PropertyGroup>
 
-		<ItemGroup>
-			<HotCacheFiles Include="$(HotCacheOutput)**\*.*" />
-		</ItemGroup>
 
-		<Copy
-		  SourceFiles="@(HotCacheFiles)"
-		  DestinationFiles="@(HotCacheFiles->'$(OutputPath)%(RecursiveDir)%(Filename)%(Extension)')"
-		  SkipUnchangedFiles="true" />
-		<!-- Ensures only changed files are copied -->
-	</Target>
+
+
+
 	
 </Project>
