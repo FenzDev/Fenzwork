@@ -13,8 +13,7 @@
 	</ItemGroup>
 
 	<ItemGroup>
-		<ProjectReference Include="..\..\Source\Fenzwork.DebuggingTools\Fenzwork.DebuggingTools.csproj">
-		</ProjectReference>
+		<ProjectReference Include="..\..\Source\Fenzwork.DebuggingTools\Fenzwork.DebuggingTools.csproj"/>
 	  <ProjectReference Include="..\..\Source\Fenzwork\Fenzwork.csproj" />
 	</ItemGroup>
 

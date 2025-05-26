@@ -33,7 +33,6 @@ namespace Fenzwork.Services
 
         protected override void LoadContent()
         {
-
             _SpriteBatch = new SpriteBatch(GraphicsDevice);
 
             drawingHelper.Batch = _SpriteBatch;
@@ -49,6 +48,8 @@ namespace Fenzwork.Services
             _Core.Unload();
             Assets.Unload(this);
             _Core.PostUnload();
+
+            DebugMessenger.Dispose();
         }
 
         protected override void Update(GameTime gameTime)

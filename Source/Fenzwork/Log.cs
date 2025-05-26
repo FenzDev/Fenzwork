@@ -15,19 +15,12 @@ namespace Fenzwork
 {
     public static class Log
     {
-        static readonly ConcurrentDictionary<Assembly, bool> _debugCache =
-            new ConcurrentDictionary<Assembly, bool>();
-        static bool IsDebugBuild(Assembly asm) =>
-            _debugCache.GetOrAdd(asm, a => {
-                var dbg = a.GetCustomAttribute<DebuggableAttribute>();
-                return dbg?.IsJITTrackingEnabled == true;
-            });
 
         [MethodImpl(MethodImplOptions.NoInlining)]
         public static void Debug(string message)
         {
             var callerAsm = Assembly.GetCallingAssembly();
-            if (!IsDebugBuild(callerAsm))
+            if (!DebugMessenger.IsDebugBuild(callerAsm))
                 return;
 
             var frame = new StackTrace(true).GetFrame(1);
@@ -60,16 +53,19 @@ namespace Fenzwork
             {
                 case LogType.Debug:
                     Debugger.Log(2, "dbg", GenerateMessage(time, "dbg", message));
-                    DebugMessenger.Log(4, message);
+                    DebugMessenger.Log(4, time, message);
                     break;
                 case LogType.Info:
                     Debugger.Log(3, "info", GenerateMessage(time, "info", message));
+                    DebugMessenger.Log(3, time, message);
                     break;
                 case LogType.Warning:
                     Debugger.Log(2, "warn", GenerateMessage(time, "warn", message));
+                    DebugMessenger.Log(2, time, message);
                     break;
                 case LogType.Error:
                     Debugger.Log(1, "error", GenerateMessage(time, "error", message));
+                    DebugMessenger.Log(1, time, message);
                     break;
             }
         }

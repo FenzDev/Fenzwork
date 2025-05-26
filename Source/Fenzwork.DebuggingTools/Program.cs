@@ -7,9 +7,36 @@ namespace Fenzwork.DebuggingTools
     {
         static void Main(string[] args)
         {
-            // TODO : Debugging Tools 
+            if (ProcessExistsAlready())
+            {
+                Console.WriteLine("Error : Process like this is working already.\nThis process will then be terminated.");
+                Environment.Exit(1);
+                return;
+            }
 
-            MessagingManager.Start();
+            MessagingManager.Start(args);
         }
+
+        static bool ProcessExistsAlready()
+        {
+            var current = Process.GetCurrentProcess();
+            var cloneProcesses = Process.GetProcessesByName(current.ProcessName);
+
+            foreach (var process in cloneProcesses)
+            {
+                if (process.Id == current.Id)
+                    continue;
+
+                if (process.MainModule == null)
+                    return false;
+
+                if (process.MainModule.FileName == current.MainModule!.FileName)
+                    return true;
+                    
+            }
+
+            return false;
+        }
+    
     }
 }

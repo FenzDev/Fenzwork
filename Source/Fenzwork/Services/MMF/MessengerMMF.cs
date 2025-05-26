@@ -6,13 +6,16 @@ using System.IO.MemoryMappedFiles;
 using System.Reflection.Metadata;
 using System.Text;
 using System.Threading;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace Fenzwork.Services.MMF
 {
     public class MessengerMMF : MMFHandler
     {
-        public MessengerMMF(string path)
+        public MessengerMMF(DateTime readerStartTime, string path)
         {
+            ReaderStartTime = readerStartTime;
+
             var splittedFileName = Path.GetFileName(path).Split('+');
 
             ShortName = splittedFileName[0];
@@ -36,14 +39,18 @@ namespace Fenzwork.Services.MMF
 
 
         public DateTime SessionUniqueStartTime { get; private init; }
+        public DateTime ReaderStartTime { get; private init; }
         public string LongName { get; private init; }
         public string ShortName { get; private init; }
+        public long HeaderSize => /*sizeof(byte) +*/ sizeof(long);
         public bool IsReader { get; private init; }
         public long HeartbeatTime;
+        public long OldTime;
+        public int TicksNotResponding;
         public long Cursor;
 
 
-        public ConcurrentQueue<(sbyte Type, string Content)> PendingMessages = new();
+        public ConcurrentQueue<(sbyte Type, DateTime Date, string Content)> PendingMessages = new();
 
 
         public override void Init()
@@ -91,6 +98,7 @@ namespace Fenzwork.Services.MMF
 
         public override void Tick()
         {
+            OldTime = HeartbeatTime;
 
             if (IsReader)
                 ReaderTick();
@@ -101,49 +109,84 @@ namespace Fenzwork.Services.MMF
         void ReaderTick()
         {
             HeartbeatTime = Accessor.ReadInt64(0);
-
+            
             var type = Accessor.ReadSByte(Cursor);
-
-            if (type == 0)
-                return;
 
             if (type == -1)
             {
-                Cursor = sizeof(long);
-                return;
+                Cursor = HeaderSize;
+                type = Accessor.ReadSByte(Cursor);
             }
+            while (type != 0)
+            {
+                Cursor += sizeof(sbyte);
 
-            var content = ReadString(Cursor + 1);
+                var date = new DateTime(Accessor.ReadInt64(Cursor));
+                Cursor += sizeof(long);
 
-            PendingMessages.Enqueue((type, content));
+                if (date > ReaderStartTime)
+                {
+                    var content = ReadString(Cursor);
+                    Cursor += sizeof(int) + sizeof(char) * content.Length;
 
-            Cursor += sizeof(sbyte) + sizeof(int) + sizeof(char) * content.Length;
+                    PendingMessages.Enqueue((type, date, content));
+                }
+                else
+                {
+                    // Skip content
+                    Cursor += sizeof(int) + sizeof(char) * Accessor.ReadInt32(Cursor);
+                }
+
+                type = Accessor.ReadSByte(Cursor);
+                if (type == -1)
+                {
+                    Cursor = HeaderSize;
+                    type = Accessor.ReadSByte(Cursor);
+                }
+            }
         }
 
         void WriterTick()
         {
+            HeartbeatTime = DateTime.Now.Ticks;
             Accessor.Write(0, HeartbeatTime);
 
-            if (PendingMessages.TryDequeue(out var msg))
+            while (PendingMessages.TryDequeue(out var msg))
             {
-                if (Cursor + sizeof(sbyte) + sizeof(int) + sizeof(char) * msg.Content.Length + 1 >= FileCapacity)
+                if (Cursor + sizeof(sbyte) + sizeof(long) + sizeof(int) + sizeof(char) * msg.Content.Length + 1 >= FileCapacity)
                 {
                     Accessor.Write(Cursor, (sbyte)-1);
-                    Cursor = sizeof(long);
+                    Cursor = HeaderSize;
                 }
 
                 var cursorStart = Cursor;
 
+                // We write 0 as type so no conflict should happen during writing
+                Accessor.Write(Cursor, (sbyte)0);
                 Cursor += sizeof(sbyte);
 
-                WriteString(Cursor, msg.Content);
+                // We write the DateTime of the message
+                Accessor.Write(Cursor, msg.Date.Ticks);
+                Cursor += sizeof(long);
 
+                // We write the content of the message
+                WriteString(Cursor, msg.Content);
                 Cursor += sizeof(int) + sizeof(char) * msg.Content.Length;
 
                 Accessor.Write(Cursor, (sbyte)0);
 
                 Accessor.Write(cursorStart, msg.Type);
             }
+        }
+
+        public override void Dispose()
+        {
+            if (!IsReader)
+            {
+                Accessor.Write(0, (long)-1);
+            }
+
+            base.Dispose();
         }
     }
 }
