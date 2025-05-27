@@ -19,8 +19,7 @@ namespace Fenzwork
         [MethodImpl(MethodImplOptions.NoInlining)]
         public static void Debug(string message)
         {
-            var callerAsm = Assembly.GetCallingAssembly();
-            if (!DebugMessenger.IsDebugBuild(callerAsm))
+            if (!DebugMessenger.IsDebugBuild)
                 return;
 
             var frame = new StackTrace(true).GetFrame(1);

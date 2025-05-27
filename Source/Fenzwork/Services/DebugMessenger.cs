@@ -8,6 +8,7 @@ using System.Linq;
 using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace Fenzwork.Services
@@ -16,10 +17,14 @@ namespace Fenzwork.Services
     {
         public static Process? DebuggingToolsProcess;
         static MessengerMMF MMF;
+        static Thread BackgroundThread;
+        static volatile bool KillBackgroundThread;
 
         public static readonly ConcurrentDictionary<Assembly, bool> _debugCache =
             new ConcurrentDictionary<Assembly, bool>();
-        public static bool IsDebugBuild(Assembly asm) =>
+        public static bool IsDebugBuild;
+        
+        public static bool IsAsmDebugBuild(Assembly asm) =>
             _debugCache.GetOrAdd(asm, a => {
                 var dbg = a.GetCustomAttribute<DebuggableAttribute>();
                 return dbg?.IsJITTrackingEnabled == true;
@@ -27,8 +32,9 @@ namespace Fenzwork.Services
 
         internal static void Init()
         {
-            var callerAsm = Assembly.GetCallingAssembly();
-            if (!IsDebugBuild(callerAsm))
+            IsDebugBuild = IsAsmDebugBuild(Assembly.GetCallingAssembly());
+            
+            if (!IsDebugBuild)
                 return;
 
             MMF = new MessengerMMF(FenzworkGame.LongName, FenzworkGame.ShortName, Process.GetCurrentProcess().StartTime.Ticks);
@@ -38,6 +44,17 @@ namespace Fenzwork.Services
             if (Debugger.IsAttached)
                 EnsureProcessRunning("Fenzwork.DebuggingTools", DateTime.Now.Ticks.ToString());
 
+            BackgroundThread = new Thread(() =>
+            {
+                while (!KillBackgroundThread)
+                {
+                    Thread.Sleep(15);
+                    MMF.BackgroundExclusiveWriterTick();
+                }
+
+            }) { IsBackground = true };
+
+            BackgroundThread.Start();
         }
 
         internal static void TryCleanOtherMessengers()
@@ -63,8 +80,7 @@ namespace Fenzwork.Services
 
         internal static void Log(sbyte type, DateTime dateTime, string message)
         {
-            var callerAsm = Assembly.GetCallingAssembly();
-            if (!IsDebugBuild(callerAsm))
+            if (!IsDebugBuild)
                 return;
 
             MMF.PendingMessages.Enqueue((type, dateTime, message));
@@ -72,8 +88,7 @@ namespace Fenzwork.Services
 
         internal static void Tick()
         {
-            var callerAsm = Assembly.GetCallingAssembly();
-            if (!IsDebugBuild(callerAsm))
+            if (!IsDebugBuild)
                 return;
 
             MMF.Tick();
@@ -81,9 +96,12 @@ namespace Fenzwork.Services
 
         internal static void Dispose()
         {
-            var callerAsm = Assembly.GetCallingAssembly();
-            if (!IsDebugBuild(callerAsm))
+            if (!IsDebugBuild)
                 return;
+
+            KillBackgroundThread = true;
+
+            BackgroundThread.Join();
 
             MMF.Dispose();
         }

@@ -72,7 +72,6 @@ namespace Fenzwork.DebuggingTools
                 var now = DateTime.Now;
                 if (now.Date != PreviousUpdatedTime.Date)
                     BriefDate();
-
                 PreviousUpdatedTime = now;
 
                 foreach (var messenger in Messengers)
@@ -122,7 +121,7 @@ namespace Fenzwork.DebuggingTools
             }
         }
 
-        static void Print(ConsoleColor color, string source, DateTime dateTime, string header, string msg)
+        static void Print(ConsoleColor color, DateTime dateTime, string source, string header, string msg)
         {
             Print(color, $"[{dateTime:HH:mm:ss.ff}][{source}/{header}]{msg}");
         }
@@ -132,16 +131,16 @@ namespace Fenzwork.DebuggingTools
             switch (type)
             {
                 case 1:
-                    Print(ConsoleColor.Red, source, dateTime, "error", content);
+                    Print(ConsoleColor.Red, dateTime, source, "error", content);
                     break;
                 case 2:
-                    Print(ConsoleColor.Yellow, source, dateTime, "warn", content);
+                    Print(ConsoleColor.Yellow, dateTime, source, "warn", content);
                     break;
                 case 3:
-                    Print(ConsoleColor.White, source, dateTime, "info", content);
+                    Print(ConsoleColor.White, dateTime, source, "info", content);
                     break;
                 case 4:
-                    Print(ConsoleColor.DarkGray, source, dateTime, "dbg", content);
+                    Print(ConsoleColor.DarkGray, dateTime, source, "dbg", content);
                     break;
             }
         }

@@ -96,6 +96,15 @@ namespace Fenzwork.Services.MMF
             }
         }
 
+        internal void BackgroundExclusiveWriterTick()
+        {
+
+            HeartbeatTime = DateTime.Now.Ticks;
+
+            Accessor.Write(0, HeartbeatTime);
+
+        }
+
         public override void Tick()
         {
             OldTime = HeartbeatTime;
@@ -148,9 +157,6 @@ namespace Fenzwork.Services.MMF
 
         void WriterTick()
         {
-            HeartbeatTime = DateTime.Now.Ticks;
-            Accessor.Write(0, HeartbeatTime);
-
             while (PendingMessages.TryDequeue(out var msg))
             {
                 if (Cursor + sizeof(sbyte) + sizeof(long) + sizeof(int) + sizeof(char) * msg.Content.Length + 1 >= FileCapacity)
