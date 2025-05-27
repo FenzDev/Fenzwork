@@ -17,16 +17,14 @@ namespace Fenzwork
     {
 
         [MethodImpl(MethodImplOptions.NoInlining)]
-        public static void Debug(string message)
+        public static void Debug(string message, [CallerFilePath] string file = "", [CallerLineNumber] int line = 0)
         {
             if (!DebugMessenger.IsDebugBuild)
                 return;
 
-            var frame = new StackTrace(true).GetFrame(1);
-            var file = Path.GetFileName(frame.GetFileName());
-            var line = frame.GetFileLineNumber();
+            var fileName = Path.GetFileName(file);
 
-            FlushMessage(LogType.Debug, $"[{file}/L:{line}] {message}");
+            FlushMessage(LogType.Debug, $"[{fileName}/L:{line}] {message}");
         }
 
         public static void Info(string message)

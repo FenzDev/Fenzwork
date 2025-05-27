@@ -49,9 +49,7 @@ namespace Fenzwork.Services.MMF
         public int TicksNotResponding;
         public long Cursor;
 
-
         public ConcurrentQueue<(sbyte Type, DateTime Date, string Content)> PendingMessages = new();
-
 
         public override void Init()
         {

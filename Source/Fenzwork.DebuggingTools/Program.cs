@@ -7,17 +7,20 @@ namespace Fenzwork.DebuggingTools
     {
         static void Main(string[] args)
         {
-            if (ProcessExistsAlready())
+            if (SimilarProcessExistsAlready())
             {
                 Console.WriteLine("Error : Process like this is working already.\nThis process will then be terminated.");
                 Environment.Exit(1);
                 return;
             }
+            AppDomain.CurrentDomain.ProcessExit += CurrentDomain_ProcessExit;
 
             MessagingManager.Start(args);
         }
 
-        static bool ProcessExistsAlready()
+        private static void CurrentDomain_ProcessExit(object? sender, EventArgs e) => MessagingManager.Dispose();
+
+        static bool SimilarProcessExistsAlready()
         {
             var current = Process.GetCurrentProcess();
             var cloneProcesses = Process.GetProcessesByName(current.ProcessName);

@@ -6,29 +6,41 @@ namespace Fenzwork.DebuggingTools
 {
     public static class MessagingManager
     {
-        public static string DirUniqueHash = PathHasher.HashFilename(AppDomain.CurrentDomain.BaseDirectory, 16);
+        static string DirUniqueHash = PathHasher.HashFilename(AppDomain.CurrentDomain.BaseDirectory, 16);
         static FileSystemWatcher MessengerFilesWatcher;
         static int Counter;
-        static bool ExitLoop;
         static DateTime StartTime;
         static DateTime PreviousUpdatedTime;
         static readonly ConsoleColor SystemPrintColor = ConsoleColor.DarkMagenta;
         static readonly int TickDelayMiliseconds = 5;
         static readonly long NotRespondingTicksToKill = 200;
         static object ConsoleLogLock = new ();
-
+#pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider adding the 'required' modifier or declaring as nullable.
+        static Thread InputThread;
+#pragma warning restore CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider adding the 'required' modifier or declaring as nullable.
+        static volatile bool ExitLoop;
 
         public static ConcurrentDictionary<string, MessengerMMF> Messengers = new ();
 
         public static void Start(string[] args)
         {
+            BriefTitle(false);
+
             StartTime = new (long.Parse(args[0]));
+
+            InputThread = new(InputLoop)
+            {
+                IsBackground = true
+            };
+            InputThread.Start();
 
             //Thread.Sleep(10000);
 
             var now = DateTime.Now;
             if (now.Date != PreviousUpdatedTime.Date)
                 BriefDate();
+
+            BriefIntroToHelp();
 
             PreviousUpdatedTime = now;
 
@@ -54,18 +66,27 @@ namespace Fenzwork.DebuggingTools
             TickLoop();
         }
 
-
-        private static void MessengerFilesWatcher_Created(object sender, FileSystemEventArgs e)
+        static void MessengerFilesWatcher_Created(object sender, FileSystemEventArgs e)
         {
             RegisterMessenger(e.FullPath);
         }
 
-        private static void BriefDate()
+        static void InputLoop()
         {
-            Print(SystemPrintColor, $"[ - {DateTime.Now:f} - ]");
+            var key = Console.ReadKey(true);
+
+            while (key.Modifiers != ConsoleModifiers.Control || key.Key != ConsoleKey.C)
+            {
+                if (key.Modifiers == ConsoleModifiers.Shift && key.Key == ConsoleKey.C)
+                    Clear();
+                else if (key.Modifiers == ConsoleModifiers.None && key.Key == ConsoleKey.H)
+                    BriefHelp();
+
+                key = Console.ReadKey(true);
+            }
         }
 
-        public static void TickLoop()
+        static void TickLoop()
         {
             while (!ExitLoop)
             {
@@ -94,7 +115,45 @@ namespace Fenzwork.DebuggingTools
             }
         }
 
-        public static bool MessengerResponseUpdate(MessengerMMF messenger)
+        static void Clear()
+        {
+            lock (ConsoleLogLock)
+            {
+                Console.Clear();
+                
+                BriefDate(false);
+                
+                BriefIntroToHelp(false);
+
+                // TODO : Maybe Brief connections
+            }
+        }
+
+        static void BriefTitle(bool doLock = true)
+        {
+            Print(SystemPrintColor, "----------------------------------", doLock);
+            Print(SystemPrintColor, " ~  FENZWORK . DEBUGGING TOOLS  ~ ", doLock);
+            Print(SystemPrintColor, "----------------------------------", doLock);
+        }
+
+        static void BriefIntroToHelp(bool doLock = true)
+        {
+            Print(SystemPrintColor, "  Press h to get help.", doLock);
+        }
+
+        static void BriefHelp(bool doLock = true)
+        {
+            Print(SystemPrintColor,
+                "  Help\n    H         -> to display this message.\n    Shift + C -> to clear the log.\n    Ctrl + C  -> to exit from the program.",
+                doLock);
+        }
+
+        static void BriefDate(bool doLock = true)
+        {
+            Print(SystemPrintColor, $"[ {DateTime.Now:f} ]", doLock);
+        }
+
+        static bool MessengerResponseUpdate(MessengerMMF messenger)
         {
             if (messenger.HeartbeatTime == -1)
                 return false;
@@ -110,9 +169,19 @@ namespace Fenzwork.DebuggingTools
             return true;
         }
 
-        private static void Print(ConsoleColor color, string message)
+        static void Print(ConsoleColor color, string message, bool doLock = true)
         {
-            lock (ConsoleLogLock)
+            if (doLock)
+            {
+                lock (ConsoleLogLock)
+                {
+                    var oldColor = Console.ForegroundColor;
+                    Console.ForegroundColor = color;
+                    Console.WriteLine(message);
+                    Console.ForegroundColor = oldColor;
+                }
+            }
+            else
             {
                 var oldColor = Console.ForegroundColor;
                 Console.ForegroundColor = color;
@@ -153,7 +222,7 @@ namespace Fenzwork.DebuggingTools
             }
         }
 
-        public static void RegisterMessenger(string path)
+        static void RegisterMessenger(string path)
         {
             var filename = Path.GetFileName(path).Split('+');
             var id = $"{filename[0]}{Counter++}";
@@ -162,12 +231,12 @@ namespace Fenzwork.DebuggingTools
 
             mmf.Init();
 
-            Print(SystemPrintColor, $"[ {id} ({filename[1]}) was connected ]");
+            Print(SystemPrintColor, $"  - {id} ({filename[1]}) was connected");
 
             Messengers.TryAdd(id, mmf);
         }
 
-        public static void UnregisterMessenger(string id)
+        static void UnregisterMessenger(string id)
         {
             Messengers.Remove(id, out var mmf);
 
@@ -185,7 +254,7 @@ namespace Fenzwork.DebuggingTools
             }
             catch { }
 
-            Print(SystemPrintColor, $"[ {id} ({longName}) was disconnected ]");
+            Print(SystemPrintColor, $"  - {id} ({longName}) was disconnected");
         }
     }
 
