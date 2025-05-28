@@ -1,41 +1,35 @@
 <Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
 
-	<!-- Gather all .fx files under the Assets folder (including subfolders) -->
-	<ItemGroup>
-		<FXSource Include="Assets\**\*.fx" />
-	</ItemGroup>
 
-	<!-- Incremental build target to compile .fx files into .mgfx files only when necessary -->
-	<Target Name="CompileFXToMGFX" BeforeTargets="CopyFilesToOutputDirectory"
-			Inputs="@(FXSource)"
-			Outputs="@(FXSource -> '%(RelativeDir)%(Filename).mgfx')">
-		<Message Text="Starting CompileFXToMGFX target..." Importance="High" />
-
-		<!-- For each .fx file, call mgfxc to compile it into its .mgfx file -->
-		<Exec Command="mgfxc &quot;%(FXSource.FullPath)&quot; &quot;%(FXSource.RelativeDir)%(FXSource.Filename).mgfx&quot; /Profile:OpenGL"
-			  WorkingDirectory="$(MSBuildProjectDirectory)" ContinueOnError="false" />
-
-		<Message Text="CompileFXToMGFX target completed." Importance="High" />
+	<PropertyGroup>
+		<AssetSourcePath Condition="'$(AssetsSourceDirectory)'==''">Assets</AssetSourcePath>
+	</PropertyGroup>
+	
+	<Target Name="GenerateConstants" BeforeTargets="CoreCompile">
+		<WriteLinesToFile
+		  File="$(IntermediateOutputPath)Fenzwork._AutoGen.Constants.cs"
+		  Lines='namespace Fenzwork._AutoGen { public static class Constants {;public const string AssetSourcePath=@"$(MSBuildProjectDirectory)/$(AssetSourcePath)"%3B;  public const string GameName="$(GameName)"%3B; public const string GameShortName="$(GameShortName)"%3B;}}'
+		  Overwrite="true" />
+		<ItemGroup>
+			<Compile Include="$(IntermediateOutputPath)Fenzwork._AutoGen.Constants.cs" AutoGen="true" />
+		</ItemGroup>
 	</Target>
 
-	<!-- Copy all files from the Assets folder except the .fx files -->
-	<ItemGroup>
-		<Content Include="Assets\**\*.*" Exclude="Assets\**\*.fx">
-			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-		</Content>
-	</ItemGroup>
+	<Target Name="RequiredProperties" BeforeTargets="Build">
+		<!-- Both GameName and GameShortName must be defined -->
+		<Error
+		  Condition="'$(GameName)' == '' and '$(GameShortName)' == ''"
+		  Text="GameName and GameShortName must be specified in project." />
+		
+		<!-- GameName must be defined -->
+		<Error
+		  Condition="'$(GameName)' == ''"
+		  Text="GameName must be specified in project." />
 
-	<!-- Ensure that all .mgfx files (compiled from .fx) are copied to output -->
-	<ItemGroup>
-		<Content Include="Assets\**\*.mgfx">
-			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-		</Content>
-	</ItemGroup>
-
-
-
-
-
-
+		<!-- GameShortName must be defined -->
+		<Error
+		  Condition="'$(GameShortName)' == ''"
+		  Text="GameShortName is required in project." />
+	</Target>
 	
 </Project>

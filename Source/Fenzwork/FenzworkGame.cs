@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -13,19 +14,15 @@ namespace Fenzwork
         public static string ShortName { get; private set; }
 
         public static List<string> _AssetsPaths { get; set; } = new();
-        public static void Run(string gameName, string gameShortName, GameCore core)
+        public static void Run(GameCore core)
         {
-            LongName = gameName;
-            ShortName = gameShortName;
+            LongName = ConstantsHelper.GetAutoGenConstantByName("GameName").ToString();
+            ShortName = ConstantsHelper.GetAutoGenConstantByName("GameShortName").ToString();
 
+            
             _AssetsPaths.Add(Assets.MainAssetsPath);
             
             using MGGame mg = new(core);
-
-            if (OperatingSystem.IsWindows() || OperatingSystem.IsLinux() || OperatingSystem.IsMacOS())
-            {
-                _AssetsPaths.AddRange(Environment.GetCommandLineArgs());
-            }
 
             mg.Run();
         }

@@ -5,7 +5,9 @@
     <RollForward>Major</RollForward>
     <PublishReadyToRun>false</PublishReadyToRun>
     <TieredCompilation>false</TieredCompilation>
-	  <MonoGamePlatform>Desktop</MonoGamePlatform>
+	<MonoGamePlatform>Desktop</MonoGamePlatform>
+	<GameName>Sandbox</GameName>
+	<GameShortName>sb</GameShortName>
   </PropertyGroup>
 
 	<ItemGroup>
@@ -13,7 +15,7 @@
 	</ItemGroup>
 
 	<ItemGroup>
-		<ProjectReference Include="..\..\Source\Fenzwork.DebuggingTools\Fenzwork.DebuggingTools.csproj"/>
+		<ProjectReference Include="..\..\Source\Fenzwork.DebuggingTools\Fenzwork.DebuggingTools.csproj" />
 	  <ProjectReference Include="..\..\Source\Fenzwork\Fenzwork.csproj" />
 	</ItemGroup>
 

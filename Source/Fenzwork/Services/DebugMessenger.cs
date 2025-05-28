@@ -30,6 +30,12 @@ namespace Fenzwork.Services
                 return dbg?.IsJITTrackingEnabled == true;
             });
 
+        public static void KillDbgToolsIfExists()
+        {
+            if (DebuggingToolsProcess != null)
+                DebuggingToolsProcess.Kill();
+        }
+
         internal static void Init()
         {
             IsDebugBuild = IsAsmDebugBuild(Assembly.GetCallingAssembly());
