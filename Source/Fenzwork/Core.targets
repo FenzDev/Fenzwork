@@ -1,14 +1,15 @@
 <Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-
-
-	<PropertyGroup>
-		<AssetSourcePath Condition="'$(AssetsSourceDirectory)'==''">Assets</AssetSourcePath>
-	</PropertyGroup>
+	
+    <PropertyGroup>
+		<ReferencingProjectRoot>$(MSBuildProjectDirectory)</ReferencingProjectRoot>
+    </PropertyGroup>
+    
+	<Import Project="Common.targets"/>
 	
 	<Target Name="GenerateConstants" BeforeTargets="CoreCompile">
 		<WriteLinesToFile
 		  File="$(IntermediateOutputPath)Fenzwork._AutoGen.Constants.cs"
-		  Lines='namespace Fenzwork._AutoGen { public static class Constants {;public const string AssetSourcePath=@"$(MSBuildProjectDirectory)/$(AssetSourcePath)"%3B;  public const string GameName="$(GameName)"%3B; public const string GameShortName="$(GameShortName)"%3B;}}'
+		  Lines='namespace Fenzwork._AutoGen { public static class Constants {;public const string AssetsSourceFullPath=@"$(AssetsSourceFullPath)"%3B;  public const string GameName="$(GameName)"%3B; public const string GameShortName="$(GameShortName)"%3B;}}'
 		  Overwrite="true" />
 		<ItemGroup>
 			<Compile Include="$(IntermediateOutputPath)Fenzwork._AutoGen.Constants.cs" AutoGen="true" />

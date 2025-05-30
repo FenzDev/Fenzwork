@@ -11,7 +11,7 @@ namespace Fenzwork.DebuggingTools
             {
                 Console.WriteLine("Error : Process like this is working already.\nThis process will then be terminated.");
                 Environment.Exit(1);
-                return;
+                return; 
             }
             AppDomain.CurrentDomain.ProcessExit += CurrentDomain_ProcessExit;
 

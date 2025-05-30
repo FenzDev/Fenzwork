@@ -20,7 +20,7 @@ namespace Fenzwork
             ShortName = ConstantsHelper.GetAutoGenConstantByName("GameShortName").ToString();
 
             
-            _AssetsPaths.Add(Assets.MainAssetsPath);
+            //_AssetsPaths.Add(Assets.MainAssetsPath);
             
             using MGGame mg = new(core);
 

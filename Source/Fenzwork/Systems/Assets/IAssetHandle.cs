@@ -1,12 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Numerics;
 using System.Text;
 using System.Threading.Tasks;
 
 namespace Fenzwork.Systems.Assets
 {
-    internal interface IAssetHandle
+    public interface IAssetHandle
     {
         public AssetID ID { get; }
         public bool IsLoaded { get; internal set; }

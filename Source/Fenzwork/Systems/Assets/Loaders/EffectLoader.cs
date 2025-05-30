@@ -11,39 +11,39 @@ using System.Threading.Tasks;
 
 namespace Fenzwork.Systems.Assets.Loaders
 {
-    public class EffectLoader : AssetLoader<Effect>
-    {
-        public override string CategoryName { get; protected set; } = "Shaders";
+    //public class EffectLoader : AssetLoader
+    //{
+    //    public override string CategoryName { get; protected set; } = "Shaders";
 
-        public override ImmutableArray<string> FileExtensions { get; } = ["mgfx"];
+    //    public override ImmutableArray<string> FileExtensions { get; } = ["mgfx"];
 
-        public GraphicsDevice GraphicsDevice { get; }
+    //    public GraphicsDevice GraphicsDevice { get; }
 
-        public override Effect DefaultObject { get; protected set; }
+    //    public override Effect DefaultObject { get; protected set; }
 
-        public EffectLoader(GraphicsDevice gdevice)
-        {
-            GraphicsDevice = gdevice;
-            DefaultObject = new BasicEffect(gdevice);
-        }
+    //    public EffectLoader(GraphicsDevice gdevice)
+    //    {
+    //        GraphicsDevice = gdevice;
+    //        DefaultObject = new SpriteEffect(gdevice);
+    //    }
 
-        byte[] ReadStreamBytes(Stream stream)
-        {
-            // Read the entire stream into a byte array
-            byte[] fileBytes = new byte[stream.Length];
-            stream.Read(fileBytes, 0, (int)stream.Length);
-            return fileBytes;
-        }
+    //    byte[] ReadStreamBytes(Stream stream)
+    //    {
+    //        // Read the entire stream into a byte array
+    //        byte[] fileBytes = new byte[stream.Length];
+    //        stream.Read(fileBytes, 0, (int)stream.Length);
+    //        return fileBytes;
+    //    }
 
-        public override Effect Load(string name, Stream stream)
-        {
-            return new Effect(GraphicsDevice, ReadStreamBytes(stream));
-        }
+    //    public override Effect Load(string name, Stream stream)
+    //    {
+    //        return new Effect(GraphicsDevice, ReadStreamBytes(stream));
+    //    }
 
-        public override Effect Reload(Effect old, string name, Stream stream)
-        {
-            old.Dispose();
-            return Load(name, stream);
-        }
-    }
+    //    public override Effect Reload(Effect old, string name, Stream stream)
+    //    {
+    //        old.Dispose();
+    //        return Load(name, stream);
+    //    }
+    //}
 }

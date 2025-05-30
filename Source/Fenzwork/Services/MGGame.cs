@@ -39,14 +39,14 @@ namespace Fenzwork.Services
             drawingHelper.GService = _Graphics;
             drawingHelper.GDevice = GraphicsDevice;
             _Core.PreLoad();
-            Assets.Load(this);
+            //Assets.Load(this);
             _Core.Load();
         }
 
         protected override void UnloadContent()
         {
             _Core.Unload();
-            Assets.Unload(this);
+            //Assets.Unload(this);
             _Core.PostUnload();
 
             DebugMessenger.Dispose();
