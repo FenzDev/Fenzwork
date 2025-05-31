@@ -11,12 +11,17 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Sandbox", "Tests\Sandbox\Sa
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Source", "Source", "{47A546A4-E8D4-40BF-BCAF-0ADB44FCFC87}"
 	ProjectSection(SolutionItems) = preProject
-		Source\Fenzwork\AssetsConfig.json = Source\Fenzwork\AssetsConfig.json
+		Source\Addon.targets = Source\Addon.targets
+		Source\AssetsConfig.json = Source\AssetsConfig.json
+		Source\Common.targets = Source\Common.targets
+		Source\Core.targets = Source\Core.targets
 	EndProjectSection
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Fenzwork.DebuggingTools", "Source\Fenzwork.DebuggingTools\Fenzwork.DebuggingTools.csproj", "{C0E64849-24E3-427A-97AC-969BE3E203C6}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Fenzwork.BuildingTools", "Source\Fenzwork.BuildingTools\Fenzwork.BuildingTools.csproj", "{C19EFB15-AC27-434C-9A85-0DD7DC24F065}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Sandbox.DesktopGL", "Tests\Sandbox.DesktopGL\Sandbox.DesktopGL.csproj", "{2F6A4239-8B18-4C38-B34B-117B7FFD7066}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -40,6 +45,10 @@ Global
 		{C19EFB15-AC27-434C-9A85-0DD7DC24F065}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{C19EFB15-AC27-434C-9A85-0DD7DC24F065}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{C19EFB15-AC27-434C-9A85-0DD7DC24F065}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2F6A4239-8B18-4C38-B34B-117B7FFD7066}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2F6A4239-8B18-4C38-B34B-117B7FFD7066}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2F6A4239-8B18-4C38-B34B-117B7FFD7066}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2F6A4239-8B18-4C38-B34B-117B7FFD7066}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -49,6 +58,7 @@ Global
 		{52AC8A0E-A5CA-499E-9E8D-48A9433A57F6} = {E6D3E9B2-DA8E-41A9-A155-FC59B0C5778E}
 		{C0E64849-24E3-427A-97AC-969BE3E203C6} = {47A546A4-E8D4-40BF-BCAF-0ADB44FCFC87}
 		{C19EFB15-AC27-434C-9A85-0DD7DC24F065} = {47A546A4-E8D4-40BF-BCAF-0ADB44FCFC87}
+		{2F6A4239-8B18-4C38-B34B-117B7FFD7066} = {E6D3E9B2-DA8E-41A9-A155-FC59B0C5778E}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {D10E88C0-66D8-4BB0-A0B2-8F6C6E1A5D71}

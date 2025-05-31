@@ -2,6 +2,8 @@
 # Sandbox
 /Tests/Sandbox/*
 !/Tests/Sandbox/Sandbox.csproj
+/Tests/Sandbox.DesktopGL/*
+!/Tests/Sandbox/Sandbox.DesktopGL.csproj
 
 
 ## Ignore Visual Studio temporary files, build results, and

@@ -4,7 +4,7 @@
   "References": [],
   "Configurations": [
     {
-      "Include": [ "*.png" ],
+      "Include": [ "**/*.png" ],
       "Type": "build",
       "Properties": [
         "importer:TextureImporter",
@@ -19,13 +19,25 @@
       ]
     },
     {
-      "Include": [ "*.wav" ],
+      "Include": [ "**/*.wav" ],
       "Type": "build",
       "Properties": [
         "importer:WavImporter",
         "processor:SoundEffectProcessor",
         "processorParam:Quality=Best"
       ]
+    },
+    {
+      "Include": [ "**/*.fx" ],
+      "Type": "build",
+      "Properties": [
+        "importer:EffectImporter",
+        "processor:EffectProcessor"
+      ]
+    },
+    {
+      "Include": [ "**/*txt" ],
+      "Type": "copy"
     }
 
 

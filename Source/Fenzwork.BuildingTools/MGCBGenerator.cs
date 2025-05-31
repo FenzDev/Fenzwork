@@ -45,7 +45,7 @@ namespace Fenzwork.BuildingTools
             MGCBWriteHeader(mgcbFileWriter, assetsConfig);
 
             var assetsDirWrapper = new DirectoryInfoWrapper(Directory.CreateDirectory(AssetsPath));
-            var excludeSet = new HashSet<string>();
+            var excludeSet = new HashSet<string>(["**/bin/**", "**/obj/**"]);
 
             foreach (var config in assetsConfig.Configurations)
             {
