@@ -5,7 +5,7 @@
     <RollForward>Major</RollForward>
     <PublishReadyToRun>false</PublishReadyToRun>
     <TieredCompilation>false</TieredCompilation>
-	<MonoGamePlatform>Desktop</MonoGamePlatform>
+	<MonoGamePlatform>DesktopGL</MonoGamePlatform>
 	<GameName>Sandbox</GameName>
 	<GameShortName>sb</GameShortName>
 	<AssetsSourcePath>Assets</AssetsSourcePath>

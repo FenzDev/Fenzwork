@@ -81,16 +81,17 @@ namespace Fenzwork.BuildingTools
         static void MGCBWriteHeader(StreamWriter writer, AssetsConfig assetsConfig)
         {
             writer.WriteLine($"# --- Auto-Generated MonoGame Content Reference File --- #");
-            writer.WriteLine($"/w:{AssetsPath}");
+            //writer.WriteLine($"/w:{AssetsPath}");
             writer.WriteLine($"/outputDir:bin/$(Platform)");
             writer.WriteLine($"/intermediateDir:obj/$(Platform)");
+            writer.WriteLine($"/platform:DesktopGL");
             writer.WriteLine($"/config:");
             writer.WriteLine($"/profile:{assetsConfig.Profile}");
             writer.WriteLine($"/compress:{assetsConfig.Compress}");
             writer.WriteLine();
             foreach (var reference in assetsConfig.References)
             {
-                writer.WriteLine($"/reference:../../{assetsConfig.Compress}");
+                writer.WriteLine($"/reference:../{assetsConfig.Compress}");
             }
             writer.WriteLine();
         }
