@@ -16,8 +16,8 @@ namespace Fenzwork
         public static List<string> _AssetsPaths { get; set; } = new();
         public static void Run(GameCore core)
         {
-            LongName = ConstantsHelper.GetAutoGenConstantByName("GameName").ToString();
-            ShortName = ConstantsHelper.GetAutoGenConstantByName("GameShortName").ToString();
+            LongName = ConstantsHelper.GetGameInfo("LongName").ToString();
+            ShortName = ConstantsHelper.GetGameInfo("ShortName").ToString();
 
             
             //_AssetsPaths.Add(Assets.MainAssetsPath);

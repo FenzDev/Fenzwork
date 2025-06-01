@@ -1,5 +1,10 @@
 <Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
 
+    <PropertyGroup>
+		<ReferencingProjectRoot>$(MSBuildProjectDirectory)</ReferencingProjectRoot>
+    </PropertyGroup>
+
+
 	<PropertyGroup Condition="'$(AssetsSourcePath)'==''">
 		<AssetsSourcePath>Content</AssetsSourcePath>
 	</PropertyGroup>
@@ -80,8 +85,38 @@
 
 	  <ItemGroup>
 		<!-- Use globbing to find .cache.mgcref in each reference -->
-		<MonoGameContentReference Include="%( _ReferencedProjectDir.ProjectDir )\**\.cache.mgcref" />
+		<MonoGameContentReference Include="%( _ReferencedProjectDir.ProjectDir )\**\.mgcref.cache" />
 	  </ItemGroup>
 	</Target>
+
+	
+	<PropertyGroup>
+		<AutoGenAssetsInfoFileName>Fenzwork._AutoGen.AssetsInfo.cs</AutoGenAssetsInfoFileName>
+		<AssetsInfoWorkinDir Condition="'$(Configuration)'=='Debug'">$([MSBuild]::NormalizeDirectory($(AssetsSourceFullPath)).Replace("\", "/"))</AssetsInfoWorkinDir>
+		<AssetsInfoWorkinDir Condition="'$(Configuration)'!='Debug'"></AssetsInfoWorkinDir>
+	</PropertyGroup>
+
+	<Target Name="GenerateAssetsInfo" BeforeTargets="CoreCompile">
+		<WriteLinesToFile
+		  File="$(IntermediateOutputPath)$(AutoGenAssetsInfoFileName)"
+		  Lines=' 
+namespace Fenzwork._AutoGen.$(MSBuildProjectName)
+{
+	static class AssetsInfo
+	{
+		public const string WorkingDir = "$(AssetsInfoWorkinDir)"%3B
+	}
+}'
+		  Overwrite="true" />
+		<ItemGroup>
+			<Compile Include="$(IntermediateOutputPath)$(AutoGenAssetsInfoFileName)" AutoGen="true" />
+		</ItemGroup>
+	</Target>
+	
+	<Target Name="DeleteAssetsInfoClean" BeforeTargets="Clean">
+		<Delete Files="$(AutoGenAssetsInfoPath)" TreatErrorsAsWarnings="true"/>
+    </Target>
+	
+	<Import Project="Core.targets"/>
 
 </Project>

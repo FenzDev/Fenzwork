@@ -1,6 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <TargetFramework>net8.0</TargetFramework>
+	<IsCore>True</IsCore>
 	<GameName>Sandbox</GameName>
 	<GameShortName>sb</GameShortName>
 	<AssetsSourcePath>Assets</AssetsSourcePath>
@@ -15,6 +16,6 @@
 		<ProjectReference Include="..\..\Source\Fenzwork\Fenzwork.csproj" />
 	</ItemGroup>
 
-	<Import Project="..\..\Source\Core.targets" />
+	<Import Project="..\..\Source\Common.targets" />
 
 </Project>

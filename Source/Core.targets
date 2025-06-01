@@ -1,22 +1,23 @@
 <Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-	
-    <PropertyGroup>
-		<ReferencingProjectRoot>$(MSBuildProjectDirectory)</ReferencingProjectRoot>
-    </PropertyGroup>
     
-	<Import Project="Common.targets"/>
-	
-	<Target Name="GenerateConstants" BeforeTargets="CoreCompile">
+	<Target Name="GenerateGameInfo" Condition="$(IsCore)==True" BeforeTargets="CoreCompile">
 		<WriteLinesToFile
-		  File="$(IntermediateOutputPath)Fenzwork._AutoGen.Constants.cs"
-		  Lines='namespace Fenzwork._AutoGen { public static class Constants {;public const string AssetsSourceFullPath=@"$(AssetsSourceFullPath)"%3B;  public const string GameName="$(GameName)"%3B; public const string GameShortName="$(GameShortName)"%3B;}}'
+		  File="$(IntermediateOutputPath)Fenzwork._AutoGen.GameInfo.cs"
+		  Lines='
+namespace Fenzwork._AutoGen {
+	static class GameInfo 
+	{
+		public const string LongName="$(GameName)"%3B
+		public const string ShortName="$(GameShortName)"%3B
+	}
+}'
 		  Overwrite="true" />
 		<ItemGroup>
-			<Compile Include="$(IntermediateOutputPath)Fenzwork._AutoGen.Constants.cs" AutoGen="true" />
+			<Compile Include="$(IntermediateOutputPath)Fenzwork._AutoGen.GameInfo.cs" AutoGen="true" />
 		</ItemGroup>
 	</Target>
 
-	<Target Name="RequiredProperties" BeforeTargets="Build">
+	<Target Name="RequiredProperties" Condition="$(IsCore)==True" BeforeTargets="Build">
 		<!-- Both GameName and GameShortName must be defined -->
 		<Error
 		  Condition="'$(GameName)' == '' and '$(GameShortName)' == ''"
