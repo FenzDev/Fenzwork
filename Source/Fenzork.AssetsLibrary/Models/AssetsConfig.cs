@@ -5,9 +5,9 @@ using System.Text;
 using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 
-namespace Fenzwork.BuildingTools.Models
+namespace Fenzwork.AssetsLibrary.Models
 {
-    internal class AssetsConfig
+    public class AssetsConfig
     {
         [JsonInclude]
         public string Profile;

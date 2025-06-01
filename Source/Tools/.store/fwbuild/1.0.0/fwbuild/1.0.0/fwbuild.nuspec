@@ -1,0 +1,13 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2012/06/nuspec.xsd">
+  <metadata>
+    <id>fwbuild</id>
+    <version>1.0.0</version>
+    <authors>fwbuild</authors>
+    <description>Package Description</description>
+    <packageTypes>
+      <packageType name="DotnetTool" />
+    </packageTypes>
+    <repository type="git" commit="61a99c929fbb69f1f081721b559523cf1a70aced" />
+  </metadata>
+</package>

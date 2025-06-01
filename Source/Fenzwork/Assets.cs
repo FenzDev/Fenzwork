@@ -9,7 +9,6 @@ namespace Fenzwork
 {
     public static class Assets
     {
-        public readonly static IReadOnlyCollection<string> DebugWorkingDirectories = ConstantsHelper.GetAssetsWorkingDirectories().AsReadOnly();
-
+        public readonly static IEnumerable<string> DebugWorkingDirectories = new List<string>();
     }
 }

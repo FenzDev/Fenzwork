@@ -7,8 +7,10 @@
 namespace Fenzwork._AutoGen {
 	static class GameInfo 
 	{
-		public const string LongName="$(GameName)"%3B
-		public const string ShortName="$(GameShortName)"%3B
+		static class SetGameInfo
+		{
+			static SetGameInfo() { Fenzwork.Services.ConstantsHelper.SetGameName("$(GameName)", "$(GameShortName)")%3B }
+		}
 	}
 }'
 		  Overwrite="true" />

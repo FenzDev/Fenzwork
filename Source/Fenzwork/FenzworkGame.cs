@@ -10,15 +10,13 @@ namespace Fenzwork
 {
     public static class FenzworkGame
     {
-        public static string LongName { get; private set; }
-        public static string ShortName { get; private set; }
+
+        public static string LongName { get; internal set; }
+        public static string ShortName { get; internal set; }
 
         public static List<string> _AssetsPaths { get; set; } = new();
         public static void Run(GameCore core)
         {
-            LongName = ConstantsHelper.GetGameInfo("LongName").ToString();
-            ShortName = ConstantsHelper.GetGameInfo("ShortName").ToString();
-
             
             //_AssetsPaths.Add(Assets.MainAssetsPath);
             
