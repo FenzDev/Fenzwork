@@ -17,5 +17,7 @@ namespace Fenzwork.AssetsLibrary.Models
         public string[] Properties = [];
         [JsonInclude] 
         public Configuration[] Exceptions = [];
+
+        public override int GetHashCode() => HashCode.Combine(Include, Type, Properties);
     }
 }

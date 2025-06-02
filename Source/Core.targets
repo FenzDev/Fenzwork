@@ -5,12 +5,10 @@
 		  File="$(IntermediateOutputPath)Fenzwork._AutoGen.GameInfo.cs"
 		  Lines='
 namespace Fenzwork._AutoGen {
-	static class GameInfo 
+	static class SetGameInfo 
 	{
-		static class SetGameInfo
-		{
-			static SetGameInfo() { Fenzwork.Services.ConstantsHelper.SetGameName("$(GameName)", "$(GameShortName)")%3B }
-		}
+		[System.Runtime.CompilerServices.ModuleInitializer]
+		public static void Init() { Fenzwork.Services.ConstantsHelper.SetGameName("$(GameName)", "$(GameShortName)")%3B }
 	}
 }'
 		  Overwrite="true" />

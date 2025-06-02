@@ -7,15 +7,18 @@ using System.Threading.Tasks;
 
 namespace Fenzwork.Services
 {
-    class ConstantsHelper
+    public class ConstantsHelper
     {
         public static void SetGameName(string longName, string shortName)
         {
             FenzworkGame.LongName = longName;
             FenzworkGame.ShortName = shortName;
         }
-        public static void AddAssetsWorkingDir(string assetsPath)
+        public static void AddAssets(string configPath, string assetsPath)
         {
+            if (assetsPath == string.Empty)
+                return;
+
             ((List<string>)Assets.DebugWorkingDirectories).Add(assetsPath);
         }
     }

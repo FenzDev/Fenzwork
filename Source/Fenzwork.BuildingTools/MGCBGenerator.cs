@@ -1,4 +1,5 @@
-﻿using Fenzwork.AssetsLibrary.Models;
+﻿using Fenzwork.AssetsLibrary;
+using Fenzwork.AssetsLibrary.Models;
 using Microsoft.Extensions.FileSystemGlobbing;
 using Microsoft.Extensions.FileSystemGlobbing.Abstractions;
 using System;
@@ -49,33 +50,11 @@ namespace Fenzwork.BuildingTools
 
             foreach (var config in assetsConfig.Configurations)
             {
-                MGCBWriteBasedOnConfiguration(mgcbFileWriter, assetsDirWrapper, config, ref excludeSet);
+                Utilities.DealWithAssetFiles((cfg, files) => MGCBWriteForFiles(mgcbFileWriter, cfg, files), assetsDirWrapper, config, ref excludeSet);
             }
 
             configFile.Close();
             mgcbFileWriter.Close();
-        }
-
-        static void MGCBWriteBasedOnConfiguration(StreamWriter writer, DirectoryInfoWrapper assetsDirWrapper, Configuration config, ref HashSet<string> excluded)
-        {
-            foreach (var exception in config.Exceptions)
-            {
-                MGCBWriteBasedOnConfiguration(writer, assetsDirWrapper, exception, ref excluded);
-            }
-
-            var matcher = new Matcher(StringComparison.Ordinal);
-            matcher.AddExcludePatterns(excluded);
-            
-            foreach (var includePattern in config.Include)
-            {
-                matcher.AddInclude(includePattern);
-                excluded.Add(includePattern);
-            }
-
-            if (config.Type.Equals("ignore", StringComparison.OrdinalIgnoreCase))
-                return;
-
-            MGCBWriteForFiles(writer, config, matcher.Execute(assetsDirWrapper).Files );
         }
 
         static void MGCBWriteHeader(StreamWriter writer, AssetsConfig assetsConfig)
