@@ -20,6 +20,7 @@ namespace Fenzwork.BuildingTools
 
         public static void Generate()
         {
+            Console.WriteLine("Starting MGCB Generator");
 
             var configFile = File.OpenRead(ConfigPath);
             if (configFile == null)
@@ -28,7 +29,7 @@ namespace Fenzwork.BuildingTools
                 return;
             }
 
-            Directory.CreateDirectory(Path.GetDirectoryName(MGCBPath));
+            Directory.CreateDirectory(AssetsPath);
             var mgcbFileWriter = File.CreateText(MGCBPath);
             if (mgcbFileWriter == null)
             {
@@ -36,10 +37,14 @@ namespace Fenzwork.BuildingTools
                 return;
             }
 
+            var globalObjDir = Path.Combine(AssetsPath, "obj", ".global");
+            Directory.CreateDirectory(globalObjDir);
+            var assetsCatalogWriter = File.CreateText(Path.Combine(globalObjDir, "assets_catalog.cache"));
+
             var assetsConfig = JsonSerializer.Deserialize<AssetsConfig>(configFile, new JsonSerializerOptions() { AllowTrailingCommas=true, ReadCommentHandling=JsonCommentHandling.Skip});
             if (assetsConfig == null)
             {
-                Console.WriteLine($"Couldn't understand the config file ({ConfigPath})\nMake sure you follow the pattern.");
+                Console.WriteLine($"Couldn't understand the config file ({ConfigPath})\nMake sure you follow the correct pattern.");
                 return;
             }
 
@@ -50,11 +55,25 @@ namespace Fenzwork.BuildingTools
 
             foreach (var config in assetsConfig.Configurations)
             {
-                Utilities.DealWithAssetFiles((cfg, files) => MGCBWriteForFiles(mgcbFileWriter, cfg, files), assetsDirWrapper, config, ref excludeSet);
+                Utilities.DealWithAssetFiles((cfg, files) => {
+                    
+                    MGCBWriteForFiles(mgcbFileWriter, cfg, files);
+                    if (!cfg.Type.Equals("ignore", StringComparison.OrdinalIgnoreCase)) AssetsCatalogWriteFiles(assetsCatalogWriter, files);
+
+                }, assetsDirWrapper, config, ref excludeSet); 
             }
 
+            assetsCatalogWriter.Close();
             configFile.Close();
             mgcbFileWriter.Close();
+        }
+
+        static void AssetsCatalogWriteFiles(StreamWriter writer, IEnumerable<FilePatternMatch> files)
+        {
+            foreach (var file in files)
+            {
+                writer.WriteLine(file.Path);
+            }
         }
 
         static void MGCBWriteHeader(StreamWriter writer, AssetsConfig assetsConfig)
@@ -75,20 +94,20 @@ namespace Fenzwork.BuildingTools
             writer.WriteLine();
         }
 
-        static void MGCBWriteForFiles(StreamWriter writer, Configuration config, IEnumerable<FilePatternMatch> files)
+        static bool MGCBWriteForFiles(StreamWriter writer, Configuration config, IEnumerable<FilePatternMatch> files)
         {
             if (config.Type.Equals("build", StringComparison.OrdinalIgnoreCase))
-            {
                 MGCBWriteBuild(writer, config, files);
-            }
             else if (config.Type.Equals("copy", StringComparison.OrdinalIgnoreCase))
-            {
                 MGCBWriteCopy(writer, config, files);
-            }
             else
-                Console.WriteLine($"Unknown {config.Type} type specified in config with patterns ({string.Join(',', config.Include)}).\nThus we will skip them.");
+            {
+                throw new Exception($"Unknown {config.Type} type specified in config with patterns ({string.Join(',', config.Include)}).");
+            
+            }
 
             writer.WriteLine();
+            return true;
         }
 
         static void MGCBWriteBuild(StreamWriter writer, Configuration config, IEnumerable<FilePatternMatch> files)

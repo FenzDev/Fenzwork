@@ -14,7 +14,7 @@ namespace Fenzwork.Services
             FenzworkGame.LongName = longName;
             FenzworkGame.ShortName = shortName;
         }
-        public static void AddAssets(string configPath, string assetsPath)
+        public static void AddAssets(string configPath, string assetsPath, string assetsCatalogContent)
         {
             if (assetsPath == string.Empty)
                 return;

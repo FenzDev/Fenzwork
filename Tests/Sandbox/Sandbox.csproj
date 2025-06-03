@@ -5,6 +5,9 @@
 	<GameName>Sandbox</GameName>
 	<GameShortName>sb</GameShortName>
 	<AssetsSourcePath>Assets</AssetsSourcePath>
+
+	
+	<IsUsingSourceBuildingTool>True</IsUsingSourceBuildingTool>
   </PropertyGroup>
 
 	<ItemGroup>

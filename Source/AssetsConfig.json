@@ -36,7 +36,7 @@
       ]
     },
     {
-      "Include": [ "**/*txt" ],
+      "Include": [ "**/*.txt" ],
       "Type": "copy"
     }
 
