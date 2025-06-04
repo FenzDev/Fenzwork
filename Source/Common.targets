@@ -64,18 +64,13 @@
 			WorkingDirectory="$(ReferencingProjectRoot)"
 			Command="&quot;$(BuildingToolCommand)&quot; &quot;@(AssetsConfigFile->'%(Identity)')&quot; &quot;@(LocalAssetsDir->'%(Identity)')&quot; &quot;@(LocalMGCBFile->'%(Identity)')&quot;" />
 		
-		
-		<ReadLinesFromFile Condition="Exists('$(AssetsCatalogFile)')" File="$(AssetsCatalogFile)">
-			<Output TaskParameter="Lines" ItemName="AssetPaths" />
-		</ReadLinesFromFile>
-		<Message Importance="High" Text="WHAT?"/>
 	</Target>
 
 	<Target Name="RunBuildingToolWithPlatform" Condition="'$(MonoGamePlatform)'!=''" BeforeTargets="CollectContentReferences">
 		<CallTarget Condition="Exists($(AssetsSourceFullPath))" Targets="RunBuildingTool"/>
     </Target>
 
-	<Target Name="RunBuildingToolNoPlatform" Condition="'$(MonoGamePlatform)'==''" BeforeTargets="Build">
+	<Target Name="RunBuildingToolNoPlatform" Condition="'$(MonoGamePlatform)'==''" BeforeTargets="BeforeBuild">
 		<CallTarget Condition="Exists($(AssetsSourceFullPath))" Targets="RunBuildingTool"/>
     </Target>
 
@@ -114,8 +109,11 @@
 	  </ItemGroup>
 	</Target>
 
-	<Target Name="ForceGenerateAssetsInfo" DependsOnTargets="RunBuildingTool">
-		<CallTarget Targets="GenerateAssetsInfo"/>
+	<Target Name="ForceGenerateAssetsInfo" AfterTargets="RunBuildingTool">
+		<MSBuild 
+		  Projects="$(MSBuildProjectFullPath)" 
+		  Targets="GenerateAssetsInfo" 
+		  Properties="SomeProperty=ForceRun$(MSBuildStartupDirectory)" />
     </Target>
 
 	<Target Name="RoutineGenerateAssetsInfo" Condition="@(AssetsConfigFile->Count()) > 0" BeforeTargets="CoreCompile">
@@ -139,11 +137,9 @@
 			<AssetsInfoConfigFile Condition="'$(Configuration)'=='Debug' and $(IsThereLocalAssets)">$([System.String]::Copy($(AssetsInfoConfigFileTmp)).Replace("\", "/"))</AssetsInfoConfigFile>
 			<AssetsInfoConfigFile Condition="'$(Configuration)'!='Debug' or !$(IsThereLocalAssets)"></AssetsInfoConfigFile>
 			
-			<AssetsInfoCatalogContent Condition="Exists('$(AssetsCatalogFile)')">@(AssetPaths->'%(Identity)', ',')</AssetsInfoCatalogContent>
+			<AssetsInfoCatalogContent Condition="Exists('$(AssetsCatalogFile)')">@(AssetPaths->'%(Identity)', ':')</AssetsInfoCatalogContent>
 
 		</PropertyGroup>
-
-		<Message Importance="High" Text="Cataloooog $(AssetsInfoCatalogContent)"/>
 
 		<WriteLinesToFile
 		  File="$(IntermediateOutputPath)$(AutoGenAssetsInfoFileName)"

@@ -16,6 +16,8 @@ namespace Fenzwork.Services
         }
         public static void AddAssets(string configPath, string assetsPath, string assetsCatalogContent)
         {
+            ((List<string>)Assets.AssetsCatalog).AddRange(assetsCatalogContent.Split(':'));
+
             if (assetsPath == string.Empty)
                 return;
 

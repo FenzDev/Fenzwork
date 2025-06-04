@@ -10,5 +10,6 @@ namespace Fenzwork
     public static class Assets
     {
         public readonly static IEnumerable<string> DebugWorkingDirectories = new List<string>();
+        public readonly static IEnumerable<string> AssetsCatalog = new List<string>();
     }
 }
