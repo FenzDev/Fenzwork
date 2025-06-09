@@ -8,7 +8,7 @@ namespace Fenzwork.Services
 {
     public class MGGame : Game
     {
-        public static MGGame _Instance;
+        public static MGGame Instance;
         public GraphicsDeviceManager _Graphics;
         public SpriteBatch _SpriteBatch;
         public GameCore _Core;
@@ -21,6 +21,7 @@ namespace Fenzwork.Services
             _Core._MG = this;
             Content.RootDirectory = "Assets";
 
+            Instance = this;
         }
 
         protected override void Initialize()

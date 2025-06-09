@@ -7,17 +7,20 @@ using System.Threading.Tasks;
 
 namespace Fenzwork.AssetsLibrary.Models
 {
-    public class Configuration
+    public class GroupConfig
     {
+        [JsonInclude]
+        public string BaseFolder = "";
         [JsonInclude]
         public string[] Include = [];
         [JsonInclude]
-        public string Type;
+        public bool RemovesTrailingExtensions = true;
+        [JsonInclude]
+        public string Method = "";
+        [JsonInclude]
+        public string Type = "";
         [JsonInclude] 
         public string[] Properties = [];
-        [JsonInclude] 
-        public Configuration[] Exceptions = [];
 
-        public override int GetHashCode() => HashCode.Combine(Include, Type, Properties);
     }
 }

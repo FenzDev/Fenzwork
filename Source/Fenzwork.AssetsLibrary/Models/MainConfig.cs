@@ -7,15 +7,17 @@ using System.Threading.Tasks;
 
 namespace Fenzwork.AssetsLibrary.Models
 {
-    public class AssetsConfig
+    public class MainConfig
     {
         [JsonInclude]
-        public string Profile;
+        public bool EnableDomains = false;
         [JsonInclude]
-        public string Compress;
+        public string Profile = "";
+        [JsonInclude]
+        public bool Compress = false;
         [JsonInclude]
         public string[] References = [];
         [JsonInclude]
-        public Configuration[] Configurations = [];
+        public GroupConfig[] Configurations = [];
     }
 }

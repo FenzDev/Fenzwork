@@ -7,17 +7,33 @@ using System.Threading.Tasks;
 
 namespace Fenzwork.Systems.Assets
 {
-    public class AssetHandle<T> : IAssetHandle
+    public sealed class AssetHandle<T> : IAsset, IDisposable
     {
-        public AssetID ID { get; internal set; }
-        public bool IsLoaded { get; internal set; }
-        public T Content { get; internal set; }
-        AssetID IAssetHandle.ID => ID;
-        bool IAssetHandle.IsLoaded { get => IsLoaded; set => IsLoaded = value; }
-        object IAssetHandle.Content { get => Content; set => Content = (T)value; }
+        internal AssetHandle(AssetRoot root)
+        {
+            Root = root;
+        }
+
+        public AssetRoot Root { get; private set; }
+
+        public AssetID ID => Root.ID;
+
+        public bool IsLoaded => Root.IsLoaded;
+
+        public T Content => (T)Root.Content;
+
+        object IAsset.Content => Content;
+
+        /// <summary>
+        /// This will close the handle
+        /// </summary>
+        public void Dispose()
+        {
+            Root.CloseHandle();
+        }
 
         public override string ToString() => ID.ToString();
 
-        public static implicit operator T(AssetHandle<T> handle) => handle.Content;
+        public static implicit operator T(AssetHandle<T> handle) => (T)handle.Content;
     }
 }

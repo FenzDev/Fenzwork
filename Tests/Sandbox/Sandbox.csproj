@@ -9,6 +9,11 @@
 	
 	<IsUsingSourceBuildingTool>True</IsUsingSourceBuildingTool>
   </PropertyGroup>
+  
+    <ItemGroup>
+        <PackageReference Include="SkiaSharp" Version="3.119.0"/>
+		<PackageReference Include="RectpackSharp" Version="1.2.0"/>
+    </ItemGroup>
 
 	<ItemGroup>
 		<PackageReference Include="MonoGame.Framework.Native" Version="3.8.3" />

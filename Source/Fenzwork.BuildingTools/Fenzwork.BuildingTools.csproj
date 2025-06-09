@@ -12,7 +12,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Fenzork.AssetsLibrary\Fenzwork.AssetsLibrary.csproj" />
+    <ProjectReference Include="..\Fenzwork.AssetsLibrary\Fenzwork.AssetsLibrary.csproj" />
   </ItemGroup>
 
 </Project>

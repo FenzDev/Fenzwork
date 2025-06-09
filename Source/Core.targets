@@ -10,7 +10,7 @@ namespace Fenzwork._AutoGen {
 	
 #pragma warning disable
 		[System.Runtime.CompilerServices.ModuleInitializer]
-		public static void Init() { Fenzwork.Services.ConstantsHelper.SetGameName("$(GameName)", "$(GameShortName)")%3B }
+		public static void Init() { Fenzwork.Services.AutoGenHelper.SetGameInfo("$(GameName)", "$(GameShortName)")%3B }
 #pragma warning restore
 	}
 }'

@@ -16,17 +16,18 @@ namespace Fenzwork.BuildingTools
 
             Console.WriteLine(string.Join('\n', args));
 
-            if (args.Length != 3)
+            if (args.Length != 4)
             {
                 Console.WriteLine("Wrong argumments.");
-                Console.WriteLine("<ConfigFile> <AssetsWorkingDir> <MGCBOutputFile>");
+                Console.WriteLine("<ConfigFile> <ProjectsAssetsPath> <AssetsWorkingDir> <MGCBOutputFile>");
                 return;
             }
 
             MGCBGenerator.ConfigPath = args[0];
-            MGCBGenerator.AssetsPath = args[1];
-            MGCBGenerator.MGCBPath = args[2];
-            
+            MGCBGenerator.ProjectAssetsPath = args[1];
+            MGCBGenerator.AssetsFullPath = args[2];
+            MGCBGenerator.MGCBPath = args[3];
+
             MGCBGenerator.Generate();
         }
     }

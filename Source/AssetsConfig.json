@@ -1,11 +1,13 @@
 {
   "Profile": "Reach",
-  "Compress": "False",
+  "Compress": false,
   "References": [],
   "Configurations": [
     {
-      "Include": [ "**/*.png" ],
-      "Type": "build",
+      "BaseFolder": "Textures",
+      "Include": [ "*.png" ],
+      "Method": "build",
+      "Type": "Microsoft.Xna.Framework.Graphics.Texture2D",
       "Properties": [
         "importer:TextureImporter",
         "processor:TextureProcessor",
@@ -19,8 +21,10 @@
       ]
     },
     {
-      "Include": [ "**/*.wav" ],
-      "Type": "build",
+      "BaseFolder": "Sounds",
+      "Include": [ "*.wav" ],
+      "Method": "build",
+      "Type": "Microsoft.Xna.Framework.SoundEffect",
       "Properties": [
         "importer:WavImporter",
         "processor:SoundEffectProcessor",
@@ -28,16 +32,19 @@
       ]
     },
     {
-      "Include": [ "**/*.fx" ],
-      "Type": "build",
+      "BaseFolder": "Shaders",
+      "Include": [ "*.fx" ],
+      "Method": "build",
+      "Type": "Microsoft.Xna.Framework.Graphics.Effect",
       "Properties": [
         "importer:EffectImporter",
         "processor:EffectProcessor"
       ]
     },
     {
-      "Include": [ "**/*.txt" ],
-      "Type": "copy"
+      "Include": [ "*.txt" ],
+      "Method": "copy",
+      "Type": "System.String",
     }
 
 

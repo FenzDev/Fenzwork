@@ -22,7 +22,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Fenzwork.BuildingTools", "S
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Sandbox.DesktopGL", "Tests\Sandbox.DesktopGL\Sandbox.DesktopGL.csproj", "{2F6A4239-8B18-4C38-B34B-117B7FFD7066}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Fenzwork.AssetsLibrary", "Source\Fenzork.AssetsLibrary\Fenzwork.AssetsLibrary.csproj", "{A8D83470-4E0C-476F-8924-6BA2D9C5D96E}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Fenzwork.AssetsLibrary", "Source\Fenzwork.AssetsLibrary\Fenzwork.AssetsLibrary.csproj", "{3234D98E-1F64-4811-AD8C-94A769F7A5FD}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -50,10 +50,10 @@ Global
 		{2F6A4239-8B18-4C38-B34B-117B7FFD7066}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{2F6A4239-8B18-4C38-B34B-117B7FFD7066}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{2F6A4239-8B18-4C38-B34B-117B7FFD7066}.Release|Any CPU.Build.0 = Release|Any CPU
-		{A8D83470-4E0C-476F-8924-6BA2D9C5D96E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{A8D83470-4E0C-476F-8924-6BA2D9C5D96E}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{A8D83470-4E0C-476F-8924-6BA2D9C5D96E}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{A8D83470-4E0C-476F-8924-6BA2D9C5D96E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3234D98E-1F64-4811-AD8C-94A769F7A5FD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3234D98E-1F64-4811-AD8C-94A769F7A5FD}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3234D98E-1F64-4811-AD8C-94A769F7A5FD}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3234D98E-1F64-4811-AD8C-94A769F7A5FD}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -64,7 +64,7 @@ Global
 		{C0E64849-24E3-427A-97AC-969BE3E203C6} = {47A546A4-E8D4-40BF-BCAF-0ADB44FCFC87}
 		{C19EFB15-AC27-434C-9A85-0DD7DC24F065} = {47A546A4-E8D4-40BF-BCAF-0ADB44FCFC87}
 		{2F6A4239-8B18-4C38-B34B-117B7FFD7066} = {E6D3E9B2-DA8E-41A9-A155-FC59B0C5778E}
-		{A8D83470-4E0C-476F-8924-6BA2D9C5D96E} = {47A546A4-E8D4-40BF-BCAF-0ADB44FCFC87}
+		{3234D98E-1F64-4811-AD8C-94A769F7A5FD} = {47A546A4-E8D4-40BF-BCAF-0ADB44FCFC87}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {D10E88C0-66D8-4BB0-A0B2-8F6C6E1A5D71}

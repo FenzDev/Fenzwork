@@ -1,7 +1,5 @@
 ﻿using Fenzwork.AssetsLibrary;
 using Fenzwork.AssetsLibrary.Models;
-using Microsoft.Extensions.FileSystemGlobbing;
-using Microsoft.Extensions.FileSystemGlobbing.Abstractions;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -14,7 +12,8 @@ namespace Fenzwork.BuildingTools
 {
     internal static class MGCBGenerator
     {
-        public static string AssetsPath;
+        public static string ProjectAssetsPath;
+        public static string AssetsFullPath;
         public static string ConfigPath;
         public static string MGCBPath;
 
@@ -29,7 +28,7 @@ namespace Fenzwork.BuildingTools
                 return;
             }
 
-            Directory.CreateDirectory(AssetsPath);
+            Directory.CreateDirectory(AssetsFullPath);
             var mgcbFileWriter = File.CreateText(MGCBPath);
             if (mgcbFileWriter == null)
             {
@@ -37,11 +36,11 @@ namespace Fenzwork.BuildingTools
                 return;
             }
 
-            var globalObjDir = Path.Combine(AssetsPath, "obj", ".global");
+            var globalObjDir = Path.Combine(AssetsFullPath, "obj", ".global");
             Directory.CreateDirectory(globalObjDir);
             var assetsCatalogWriter = File.CreateText(Path.Combine(globalObjDir, "assets_catalog.cache"));
 
-            var assetsConfig = JsonSerializer.Deserialize<AssetsConfig>(configFile, new JsonSerializerOptions() { AllowTrailingCommas=true, ReadCommentHandling=JsonCommentHandling.Skip});
+            var assetsConfig = JsonSerializer.Deserialize<MainConfig>(configFile, new JsonSerializerOptions() { AllowTrailingCommas=true, ReadCommentHandling=JsonCommentHandling.Skip});
             if (assetsConfig == null)
             {
                 Console.WriteLine($"Couldn't understand the config file ({ConfigPath})\nMake sure you follow the correct pattern.");
@@ -50,36 +49,29 @@ namespace Fenzwork.BuildingTools
 
             MGCBWriteHeader(mgcbFileWriter, assetsConfig);
 
-            var assetsDirWrapper = new DirectoryInfoWrapper(Directory.CreateDirectory(AssetsPath));
             var excludeSet = new HashSet<string>(["**/bin/**", "**/obj/**"]);
 
-            foreach (var config in assetsConfig.Configurations)
-            {
-                Utilities.DealWithAssetFiles((cfg, files) => {
-                    
-                    MGCBWriteForFiles(mgcbFileWriter, cfg, files);
-                    if (!cfg.Type.Equals("ignore", StringComparison.OrdinalIgnoreCase)) AssetsCatalogWriteFiles(assetsCatalogWriter, files);
+            Utilities.DealWithAssets(assetsConfig, (elm,config) => {
 
-                }, assetsDirWrapper, config, ref excludeSet); 
-            }
+                MGCBWriteForFiles(mgcbFileWriter, config, elm);
+                AssetsCatalogWriteFile(assetsCatalogWriter, elm);
+
+            }, ProjectAssetsPath, AssetsFullPath);
 
             assetsCatalogWriter.Close();
             configFile.Close();
             mgcbFileWriter.Close();
         }
 
-        static void AssetsCatalogWriteFiles(StreamWriter writer, IEnumerable<FilePatternMatch> files)
+        static void AssetsCatalogWriteFile(StreamWriter writer, AssetInfo assetInfo)
         {
-            foreach (var file in files)
-            {
-                writer.WriteLine(file.Path);
-            }
+            writer.WriteLine(assetInfo.ToString());
         }
 
-        static void MGCBWriteHeader(StreamWriter writer, AssetsConfig assetsConfig)
+        static void MGCBWriteHeader(StreamWriter writer, MainConfig assetsConfig)
         {
             writer.WriteLine($"# --- Auto-Generated MonoGame Content Reference File --- #");
-            //writer.WriteLine($"/w:{AssetsPath}");
+            //writer.WriteLine($"/w:{AssetsFullPath}");
             writer.WriteLine($"/outputDir:bin/$(Platform)");
             writer.WriteLine($"/intermediateDir:obj/$(Platform)");
             writer.WriteLine($"/platform:DesktopGL");
@@ -94,52 +86,40 @@ namespace Fenzwork.BuildingTools
             writer.WriteLine();
         }
 
-        static bool MGCBWriteForFiles(StreamWriter writer, Configuration config, IEnumerable<FilePatternMatch> files)
+        static bool MGCBWriteForFiles(StreamWriter writer, GroupConfig config, AssetInfo assetInfo)
         {
-            if (config.Type.Equals("build", StringComparison.OrdinalIgnoreCase))
-                MGCBWriteBuild(writer, config, files);
-            else if (config.Type.Equals("copy", StringComparison.OrdinalIgnoreCase))
-                MGCBWriteCopy(writer, config, files);
+            if (assetInfo.Method == "build")
+                MGCBWriteBuild(writer, config, assetInfo);
+            else if (config.Method.Equals("copy", StringComparison.OrdinalIgnoreCase))
+                MGCBWriteCopy(writer, assetInfo);
             else
             {
-                throw new Exception($"Unknown {config.Type} type specified in config with patterns ({string.Join(',', config.Include)}).");
-            
+                throw new Exception($"Unknown {assetInfo.Method} type specified in config with patterns ({string.Join(',', config.Include)}).");
             }
 
             writer.WriteLine();
             return true;
         }
 
-        static void MGCBWriteBuild(StreamWriter writer, Configuration config, IEnumerable<FilePatternMatch> files)
+        static void MGCBWriteBuild(StreamWriter writer, GroupConfig config, AssetInfo assetInfo)
         {
-            if (files.Count() == 0)
-                return;
-
+            writer.Write("#begin ");
+            writer.WriteLine(assetInfo.AssetPath);
             foreach (var property in config.Properties)
             {
                 writer.Write('/');
                 writer.WriteLine(property);
             }
-
-            foreach (var file in files)
-            {
-                writer.Write("#begin ");
-                writer.WriteLine(file.Path);
-                writer.Write("/build:");
-                writer.WriteLine(file.Path);
-
-            }
+            writer.Write("/build:");
+            writer.WriteLine(assetInfo.AssetPath);
         }
 
-        static void MGCBWriteCopy(StreamWriter writer, Configuration config, IEnumerable<FilePatternMatch> files)
+        static void MGCBWriteCopy(StreamWriter writer, AssetInfo assetInfo)
         {
-            foreach (var file in files)
-            {
-                writer.Write("#begin ");
-                writer.WriteLine(file.Path);
-                writer.Write("/copy:");
-                writer.WriteLine(file.Path);
-            }
+            writer.Write("#begin ");
+            writer.WriteLine(assetInfo.AssetPath);
+            writer.Write("/copy:");
+            writer.WriteLine(assetInfo.AssetPath);
         }
 
     }

@@ -7,10 +7,10 @@ using System.Threading.Tasks;
 
 namespace Fenzwork.Systems.Assets
 {
-    public interface IAssetHandle
+    public interface IAsset
     {
-        public AssetID ID { get; }
-        public bool IsLoaded { get; internal set; }
-        public object Content { get; internal set; }
+        AssetID ID { get; }
+        bool IsLoaded { get;  }
+        object Content { get; }
     }
 }
