@@ -17,23 +17,14 @@ namespace Fenzwork.Services
         }
         public static void AddDebugAssetsInfo(string configPath, string assetsPath)
         {
-            //((List<string>)Assets.AssetsCatalog).AddRange(assetsCatalogContent.Split(':'));
-
             if (assetsPath == string.Empty)
                 return;
 
-            //((List<string>)Assets.DebugWorkingDirectories).Add(assetsPath);
-        }
-        public static void SetAssetsPath(string assetsPath)
-        {
-            
+            ((List<(string, string)>)AssetsManager.DebugWorkingDirectories).Add((configPath, assetsPath));
         }
         public static void RegisterAsset(string assetInfoStr)
         {
-            var info = new AssetInfo( assetInfoStr );
-
-
-
+            AssetsManager.RegisterAsset(new AssetInfo(assetInfoStr));
         }
     }
 }

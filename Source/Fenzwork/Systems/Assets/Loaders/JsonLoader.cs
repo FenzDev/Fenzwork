@@ -1,23 +1,27 @@
 ﻿using System.Collections.Immutable;
 using System.IO;
+using System.Text.Json;
 using Fenzwork.AssetsLibrary.Models;
 using Fenzwork.Systems.Assets;
 using Microsoft.VisualBasic;
 
 namespace Fenzwork.Systems.Assets.Loaders
 {
-    internal class TextLoader : AssetCustomLoader
+    internal class JsonLoader : AssetCustomLoader
     {
         protected override void Load(Stream stream, AssetID assetID, string suffixParameter, out object resultAsset)
         {
-            using var reader = new StreamReader(stream);
-            resultAsset = reader.ReadToEnd();
+            resultAsset = JsonSerializer.Deserialize(stream, assetID.AssetType);
         }
 
         protected override bool Reload(Stream stream, AssetID assetID, string suffixParameter, object oldAsset, out object resultAsset)
         {
-            Load(stream, assetID, out resultAsset);
-            return true;
+            Load(stream, assetID, suffixParameter, out resultAsset);
+            
+            if (resultAsset != null)
+                return true;
+
+            return false;
         }
     }
 }

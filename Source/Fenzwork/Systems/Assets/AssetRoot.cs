@@ -42,15 +42,15 @@ namespace Fenzwork.Systems.Assets
         {
             var handle = new AssetHandle<T>(this);
             NumberOfActiveHandles++;
+
+            if (AssetsManager.LoadingTime == AssetLoadingTime.Lazy)
+                AssetsManager.LoadAsset(this);
+
             return handle;
         }
         internal void CloseHandle()
         {
             NumberOfActiveHandles--;
-        }
-        void ForceLoad()
-        {
-
         }
     }
 }
