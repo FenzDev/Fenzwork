@@ -7,10 +7,12 @@ using Microsoft.Xna.Framework.Content;
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.Design;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Reflection.Metadata;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -18,17 +20,25 @@ namespace Fenzwork
 {
     public static class AssetsManager
     {
-        static AssetsManager()
+        internal static void Init()
         {
             CustomLoaders.Add(typeof(object), new JsonLoader());
             CustomLoaders.Add(typeof(string), new TextLoader());
+            
+
+            foreach (var registrations in RegestrationsQueue)
+            {
+                foreach (var registration in registrations)
+                {
+                    RegisterAsset(new AssetInfo(registration));
+                }
+            }
         }
 
         public static string AssemblyRelativeDirectory = "";
         public static AssetLoadingTime LoadingTime { get; internal set; } = AssetLoadingTime.Lazy;
 
-        internal readonly static IEnumerable<(string ConfigPath, string AssetsPath)> DebugWorkingDirectories = new List<(string ConfigPath, string AssetsPath)>();
-
+        internal static List<(string ConfigPath, string AssetsPath)> DebugWorkingDirectories = new ();
         internal static Dictionary<AssetID, AssetRoot> AssetsBank { get; } = new();
         public static Dictionary<Type, AssetCustomLoader> CustomLoaders { get; } = new();
 
@@ -53,24 +63,62 @@ namespace Fenzwork
             {
                 var newRoot = new AssetRoot(id);
                 
-                AssetsBank.Add(id, new AssetRoot(id));
+                AssetsBank.Add(id, newRoot);
 
                 return newRoot;
             }
         }
 
+
+        internal static Queue<string[]> RegestrationsQueue = new();
+        internal static void RegisterAssetsEnqueue(string[] info)
+        {
+            RegestrationsQueue.Enqueue(info);
+        }
+        internal static Dictionary<string, Type> TypesCache = new();
+        static Type GetType(string typeName)
+        {
+            if (TypesCache.TryGetValue(typeName, out var typeCache))
+                return typeCache;
+
+            foreach (var asm in AppDomain.CurrentDomain.GetAssemblies())
+            {
+                var type = asm.GetType(typeName);
+
+                if (type == null)
+                    continue;
+
+                TypesCache.Add(typeName, type);
+                return type;
+            }
+
+            throw new Exception($"Couldn't find type with name {typeName}.");
+        }
         internal static void RegisterAsset(AssetInfo info)
         {
-            var assetID = new AssetID(info.Domain, info.AssetName, Type.GetType(info.Type));
+            var assetID = new AssetID(info.AssetName, info.Domain, GetType(info.Type));
             var assetRoot = GetRoot(assetID);
 
             assetRoot.FullInfo = info;
             assetRoot.IsRegistered = true;
         }
 
+        internal static void UnloadAsset(AssetRoot assetRoot)
+        {
+            if (assetRoot.Loader != null)
+                assetRoot.Loader.DoUnLoad(assetRoot.ID, assetRoot.FullInfo.Parameter, assetRoot.Content);
+
+            if (assetRoot.Content is IDisposable content)
+            {
+                content.Dispose();
+            }
+
+            assetRoot.Content = null;
+        }
+
         internal static void LoadAsset(AssetRoot assetRoot)
         {
-            if (assetRoot.IsLoaded || !assetRoot.IsRegistered) return;
+            if (assetRoot.IsLoaded && !assetRoot.IsRegistered) return;
 
             switch (assetRoot.FullInfo.Method)
             {
@@ -108,7 +156,8 @@ namespace Fenzwork
             var oldDir = MGGame.Instance.Content.RootDirectory;
             MGGame.Instance.Content.RootDirectory = dir;
 
-            assetRoot.Content = GetGenericMethod(typeof(ContentManager), "Load", assetRoot.ID.AssetType).Invoke(MGGame.Instance.Content, [ assetRoot.FullInfo.AssetPath ]);
+            var contentName = Path.Combine(Path.GetDirectoryName(assetRoot.FullInfo.AssetPath), Path.GetFileNameWithoutExtension(assetRoot.FullInfo.AssetPath));
+            assetRoot.Content = GetGenericMethod(typeof(ContentManager), "Load", assetRoot.ID.AssetType).Invoke(MGGame.Instance.Content, [contentName]);
 
 
             assetRoot.IsLoaded = true;

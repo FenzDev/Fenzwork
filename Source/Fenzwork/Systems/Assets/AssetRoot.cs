@@ -26,6 +26,7 @@ namespace Fenzwork.Systems.Assets
         public AssetInfo FullInfo { get; internal set; }
         public bool IsRegistered { get; internal set; }
         public bool IsLoaded { get; internal set; }
+        public AssetCustomLoader? Loader { get; internal set; }
         public object Content { get; internal set; }
 
         public void Dispose()
@@ -51,6 +52,9 @@ namespace Fenzwork.Systems.Assets
         internal void CloseHandle()
         {
             NumberOfActiveHandles--;
+            
+            if (NumberOfActiveHandles <= 0 && AssetsManager.LoadingTime == AssetLoadingTime.Lazy)
+                AssetsManager.UnloadAsset(this);
         }
     }
 }

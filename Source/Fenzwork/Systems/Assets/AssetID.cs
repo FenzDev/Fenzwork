@@ -11,13 +11,13 @@ namespace Fenzwork.Systems.Assets
 {
     public readonly struct AssetID
     {
-        public AssetID(string domain, string assetName, Type assetType)
+        public AssetID( string assetName, string domain, Type assetType)
         {
             Domain = domain;
             AssetName = assetName;
             AssetType = assetType;
 
-            _Hash = HashCode.Combine(Domain, AssetName, AssetType);
+            _Hash = HashCode.Combine(Domain, AssetName, AssetType.Name.GetHashCode());
         }
         public readonly string Domain;
         public readonly string AssetName;

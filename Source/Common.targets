@@ -188,12 +188,14 @@ using (var writer = new StreamWriter(OutputFile, false, Encoding.UTF8))
         writer.WriteLine();
     }
 
+    writer.WriteLine("\t\t\tFenzwork.Services.AutoGenHelper.RegisterAssets([");
     foreach (var entry in assetEntries)
     {
         var filename = Path.GetFileName(entry.AssetName);
-        writer.WriteLine("\t\t\tFenzwork.Services.AutoGenHelper.RegisterAsset(\""
-            + entry.FullInfo.Replace("\\", "\\\\") + "\");");
+        writer.WriteLine("\t\t\t\t\""
+            + entry.FullInfo.Replace("\\", "\\\\") + "\",");
     }
+    writer.WriteLine("\t\t\t]);");
 
     writer.WriteLine("\t\t}");
     writer.WriteLine("#pragma warning restore");
@@ -258,7 +260,7 @@ using (var writer = new StreamWriter(OutputFile, false, Encoding.UTF8))
         // Declare asset field
         string indent = new string('\t', classSegments.Count + 3);
         writer.WriteLine(indent + "/// <summary>");
-        writer.WriteLine(indent + "/// Assetname='" + entry.AssetName + ":"+ entry.Domain + "'");
+        writer.WriteLine(indent + "/// Asset Full Name = '" + entry.AssetName + ":"+ entry.Domain + "'");
         writer.WriteLine(indent + "/// <para>You might not want to use it directly inside Game Loops. Put it into field/property instead at loading time</para>");
         writer.WriteLine(indent + "/// </summary>");
         writer.WriteLine(indent + "public static Fenzwork.Systems.Assets.AssetHandle<"

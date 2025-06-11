@@ -16,7 +16,7 @@ namespace Fenzwork.Systems.Assets.Loaders
 
         protected override bool Reload(Stream stream, AssetID assetID, string suffixParameter, object oldAsset, out object resultAsset)
         {
-            Load(stream, assetID, out resultAsset);
+            DoLoad(stream, assetID, suffixParameter, out resultAsset);
             return true;
         }
     }

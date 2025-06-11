@@ -3,6 +3,7 @@ using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using System;
 using Fenzwork.Graphics;
+using System.Reflection;
 
 namespace Fenzwork.Services
 {
@@ -19,14 +20,13 @@ namespace Fenzwork.Services
             _Graphics = new GraphicsDeviceManager(this);
             _Core = core;
             _Core._MG = this;
-            Content.RootDirectory = "Assets";
-
             Instance = this;
         }
 
         protected override void Initialize()
         {
             Input.Init();
+            AssetsManager.Init();
             DebugMessenger.Init();
             _Core.Init();
             base.Initialize();

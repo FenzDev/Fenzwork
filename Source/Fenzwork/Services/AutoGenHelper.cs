@@ -20,11 +20,11 @@ namespace Fenzwork.Services
             if (assetsPath == string.Empty)
                 return;
 
-            ((List<(string, string)>)AssetsManager.DebugWorkingDirectories).Add((configPath, assetsPath));
+            AssetsManager.DebugWorkingDirectories.Add((configPath, assetsPath));
         }
-        public static void RegisterAsset(string assetInfoStr)
+        public static void RegisterAssets(string[] assetInfoStr)
         {
-            AssetsManager.RegisterAsset(new AssetInfo(assetInfoStr));
+            AssetsManager.RegisterAssetsEnqueue(assetInfoStr);
         }
     }
 }
