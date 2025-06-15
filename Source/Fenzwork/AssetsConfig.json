@@ -1,0 +1,52 @@
+{
+  "Profile": "Reach",
+  "Compress": false,
+  "References": [],
+  "Configurations": [
+    {
+      "BaseFolder": "Textures",
+      "Include": [ "*.png" ],
+      "Method": "build",
+      "Type": "Microsoft.Xna.Framework.Graphics.Texture2D",
+      "Properties": [
+        "importer:TextureImporter",
+        "processor:TextureProcessor",
+        "processorParam:ColorKeyColor=255, 0, 255, 255",
+        "processorParam:ColorKeyEnabled=True",
+        "processorParam:GenerateMipmaps=False",
+        "processorParam:PremultiplyAlpha=True",
+        "processorParam:ResizeToPowerOfTwo=False",
+        "processorParam:MakeSquare=False",
+        "processorParam:TextureFormat=Color"
+      ]
+    },
+    {
+      "BaseFolder": "Sounds",
+      "Include": [ "*.wav" ],
+      "Method": "build",
+      "Type": "Microsoft.Xna.Framework.SoundEffect",
+      "Properties": [
+        "importer:WavImporter",
+        "processor:SoundEffectProcessor",
+        "processorParam:Quality=Best"
+      ]
+    },
+    {
+      "BaseFolder": "Shaders",
+      "Include": [ "*.fx" ],
+      "Method": "build",
+      "Type": "Microsoft.Xna.Framework.Graphics.Effect",
+      "Properties": [
+        "importer:EffectImporter",
+        "processor:EffectProcessor"
+      ]
+    },
+    {
+      "Include": [ "*.txt" ],
+      "Method": "copy",
+      "Type": "System.String",
+    }
+
+
+  ]
+}

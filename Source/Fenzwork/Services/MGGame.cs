@@ -4,6 +4,7 @@ using Microsoft.Xna.Framework.Input;
 using System;
 using Fenzwork.Graphics;
 using System.Reflection;
+using Fenzwork.Systems.Assets;
 
 namespace Fenzwork.Services
 {
@@ -58,6 +59,7 @@ namespace Fenzwork.Services
             _Core.PreUpdate();
             DebugMessenger.Tick();
             Input.Update(gameTime);
+            AssetsDebugger.Tick();
             _Core.Update();
         }
 

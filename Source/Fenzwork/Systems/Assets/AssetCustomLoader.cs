@@ -19,12 +19,6 @@ namespace Fenzwork.Systems.Assets
         /// <summary>
         /// Called when overloading assets from different source or hot-reloaded.
         /// </summary>
-        protected abstract bool Reload(Stream stream, AssetID assetID, string suffixParameter, object oldAsset, out object resultAsset);
-        internal bool DoReload(Stream stream, AssetID assetID, string suffixParameter, object oldAsset, out object resultAsset) => Reload(stream, assetID, suffixParameter, oldAsset, out resultAsset);
-        
-        /// <summary>
-        /// Called when overloading assets from different source or hot-reloaded.
-        /// </summary>
         protected virtual void Unload(AssetID assetID, string suffixParameter, object oldAsset) { }
         internal void DoUnLoad(AssetID assetID, string suffixParameter, object oldAsset) => Unload(assetID, suffixParameter, oldAsset);
 

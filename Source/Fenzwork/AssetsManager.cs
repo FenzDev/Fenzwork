@@ -3,6 +3,7 @@ using Fenzwork.Services;
 using Fenzwork.Systems.Assets;
 using Fenzwork.Systems.Assets.Loaders;
 using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Audio;
 using Microsoft.Xna.Framework.Content;
 using System;
 using System.Collections;
@@ -25,22 +26,22 @@ namespace Fenzwork
             CustomLoaders.Add(typeof(object), new JsonLoader());
             CustomLoaders.Add(typeof(string), new TextLoader());
             
-
             foreach (var registrations in RegestrationsQueue)
             {
                 foreach (var registration in registrations)
                 {
-                    RegisterAsset(new AssetInfo(registration));
+                    RegisterAsset(new ("", new(registration)));
                 }
             }
         }
 
-        public static string AssemblyRelativeDirectory = "";
+        public static string SelectedAssetsAssemblyDirectory;
+        public static List<string> DifferentAssetsAssembeliesOrders = [""];
+
         public static AssetLoadingTime LoadingTime { get; internal set; } = AssetLoadingTime.Lazy;
 
-        internal static List<(string ConfigPath, string AssetsPath)> DebugWorkingDirectories = new ();
-        internal static Dictionary<AssetID, AssetRoot> AssetsBank { get; } = new();
-        public static Dictionary<Type, AssetCustomLoader> CustomLoaders { get; } = new();
+        internal static Dictionary<AssetID, AssetRoot> AssetsBank { get; } = [];
+        public static Dictionary<Type, AssetCustomLoader> CustomLoaders { get; } = [];
 
 
         public static AssetHandle<T> Get<T>(string assetname, string domain = "") => Get<T>(new (assetname, domain, typeof(T)));
@@ -53,7 +54,7 @@ namespace Fenzwork
 
             return assetRoot.OpenHandle<T>();
         }
-        static AssetRoot GetRoot(AssetID id)
+        internal static AssetRoot GetRoot(AssetID id)
         {
             if (AssetsBank.TryGetValue(id, out var root))
             {
@@ -69,14 +70,14 @@ namespace Fenzwork
             }
         }
 
-
         internal static Queue<string[]> RegestrationsQueue = new();
         internal static void RegisterAssetsEnqueue(string[] info)
         {
             RegestrationsQueue.Enqueue(info);
         }
-        internal static Dictionary<string, Type> TypesCache = new();
-        static Type GetType(string typeName)
+        
+        internal static Dictionary<string, Type> TypesCache = [ ];
+        internal static Type GetType(string typeName)
         {
             if (TypesCache.TryGetValue(typeName, out var typeCache))
                 return typeCache;
@@ -94,24 +95,54 @@ namespace Fenzwork
 
             throw new Exception($"Couldn't find type with name {typeName}.");
         }
-        internal static void RegisterAsset(AssetInfo info)
+        
+        internal static AssetRoot FindAssetRootByInfo(AssetSourceInfo info)
         {
-            var assetID = new AssetID(info.AssetName, info.Domain, GetType(info.Type));
-            var assetRoot = GetRoot(assetID);
+            var assetID = new AssetID(info.Info.AssetName, info.Info.Domain, GetType(info.Info.Type));
+            return GetRoot(assetID);
 
-            assetRoot.FullInfo = info;
-            assetRoot.IsRegistered = true;
+        }
+
+        internal static void RegisterAsset(AssetSourceInfo info)
+        {
+            var assetRoot = FindAssetRootByInfo(info);
+
+            if (assetRoot.Sources.Contains(info))
+                return;
+
+            assetRoot.Sources.Add(info);
+        }
+
+        internal static void UnregisterAsset(AssetSourceInfo info)
+        {
+            var assetRoot = FindAssetRootByInfo(info);
+            
+            var idx = assetRoot.Sources.IndexOf(info);
+
+            if (idx < 0)
+                return;
+
+            var mustUnload = assetRoot.IsLoaded && idx == assetRoot.Sources.Count - 1;
+
+            if (mustUnload)
+                UnloadAsset(assetRoot);
+
+            assetRoot.Sources.RemoveAt(idx);
+
+            if (assetRoot.IsRegistered && mustUnload)
+                LoadAsset(assetRoot);
         }
 
         internal static void UnloadAsset(AssetRoot assetRoot)
         {
             if (assetRoot.Loader != null)
-                assetRoot.Loader.DoUnLoad(assetRoot.ID, assetRoot.FullInfo.Parameter, assetRoot.Content);
-
-            if (assetRoot.Content is IDisposable content)
             {
-                content.Dispose();
+                assetRoot.Loader.DoUnLoad(assetRoot.ID, assetRoot.CurrentSource.Info.Parameter, assetRoot.Content);
+                return;
             }
+
+            if (assetRoot.CurrentSource.Info.Method == "build")
+                UnloadBuildAsset(assetRoot);
 
             assetRoot.Content = null;
         }
@@ -120,7 +151,7 @@ namespace Fenzwork
         {
             if (assetRoot.IsLoaded && !assetRoot.IsRegistered) return;
 
-            switch (assetRoot.FullInfo.Method)
+            switch (assetRoot.CurrentSource.Info.Method)
             {
                 case "build":
                     LoadBuildAsset(assetRoot);
@@ -131,15 +162,25 @@ namespace Fenzwork
             }
         }
 
+        internal static void ReloadAsset(AssetRoot assetRoot)
+        {
+            UnloadAsset(assetRoot);
+            LoadAsset(assetRoot);
+        }
+
         internal static void LoadCopyAsset(AssetRoot assetRoot)
         {
-            var assetPath = AssemblyRelativeDirectory == null ? Path.Combine(assetRoot.FullInfo.AssetsPath, assetRoot.FullInfo.AssetPath) : Path.Combine(AssemblyRelativeDirectory, assetRoot.FullInfo.AssetsPath, assetRoot.FullInfo.AssetPath);
+            var source = assetRoot.CurrentSource;
+
+            var assetPath = source.AssemblyRelativeLocation == null ?
+                Path.Combine(source.Info.AssetPath, source.Info.AssetPath) 
+                : Path.Combine(source.AssemblyRelativeLocation, source.Info.AssetsPath, source.Info.AssetPath);
             using var stream = TitleContainer.OpenStream(assetPath);
             try
             {
                 if (CustomLoaders.TryGetValue(assetRoot.ID.AssetType, out var loader))
                 {
-                    loader.DoLoad(stream, assetRoot.ID, assetRoot.FullInfo.Parameter, out var assetContent);
+                    loader.DoLoad(stream, assetRoot.ID, source.Info.Parameter, out var assetContent);
 
                     assetRoot.Content = assetContent;
                     assetRoot.IsLoaded = true;
@@ -149,14 +190,32 @@ namespace Fenzwork
 
         }
 
-        internal static void LoadBuildAsset(AssetRoot assetRoot)
+        internal static void UnloadBuildAsset(AssetRoot assetRoot)
         {
-            var dir = AssemblyRelativeDirectory == ""? assetRoot.FullInfo.AssetsPath: Path.Combine(AssemblyRelativeDirectory, assetRoot.FullInfo.AssetsPath);
+            var source = assetRoot.CurrentSource;
+            var dir = source.AssemblyRelativeLocation == "" ? source.Info.AssetsPath : Path.Combine(source.AssemblyRelativeLocation, source.Info.AssetsPath);
 
             var oldDir = MGGame.Instance.Content.RootDirectory;
             MGGame.Instance.Content.RootDirectory = dir;
 
-            var contentName = Path.Combine(Path.GetDirectoryName(assetRoot.FullInfo.AssetPath), Path.GetFileNameWithoutExtension(assetRoot.FullInfo.AssetPath));
+            var contentName = Path.Combine(Path.GetDirectoryName(source.Info.AssetPath), Path.GetFileNameWithoutExtension(source.Info.AssetPath));
+
+            MGGame.Instance.Content.UnloadAsset(contentName);
+
+            assetRoot.IsLoaded = true;
+
+            MGGame.Instance.Content.RootDirectory = oldDir;
+        }
+
+        internal static void LoadBuildAsset(AssetRoot assetRoot)
+        {
+            var source = assetRoot.CurrentSource;
+            var dir = source.AssemblyRelativeLocation == ""? source.Info.AssetsPath: Path.Combine(source.AssemblyRelativeLocation, source.Info.AssetsPath);
+
+            var oldDir = MGGame.Instance.Content.RootDirectory;
+            MGGame.Instance.Content.RootDirectory = dir;
+
+            var contentName = Path.Combine(Path.GetDirectoryName(source.Info.AssetPath), Path.GetFileNameWithoutExtension(source.Info.AssetPath));
             assetRoot.Content = GetGenericMethod(typeof(ContentManager), "Load", assetRoot.ID.AssetType).Invoke(MGGame.Instance.Content, [contentName]);
 
 

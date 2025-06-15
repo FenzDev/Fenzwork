@@ -1,4 +1,5 @@
 ﻿using Fenzwork.AssetsLibrary.Models;
+using Fenzwork.Systems.Assets;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -20,7 +21,7 @@ namespace Fenzwork.Services
             if (assetsPath == string.Empty)
                 return;
 
-            AssetsManager.DebugWorkingDirectories.Add((configPath, assetsPath));
+            AssetsDebugger.AddDebugAssetsInfo(configPath, assetsPath);
         }
         public static void RegisterAssets(string[] assetInfoStr)
         {

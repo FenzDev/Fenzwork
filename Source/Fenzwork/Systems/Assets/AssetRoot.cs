@@ -23,8 +23,9 @@ namespace Fenzwork.Systems.Assets
         public int NumberOfActiveHandles { get; private set; } = 0;
 
         public AssetID ID { get; private set; }
-        public AssetInfo FullInfo { get; internal set; }
-        public bool IsRegistered { get; internal set; }
+        internal List<AssetSourceInfo> Sources = new();
+        internal AssetSourceInfo CurrentSource => IsRegistered? Sources[Sources.Count - 1]: default;
+        public bool IsRegistered => Sources.Count > 0;
         public bool IsLoaded { get; internal set; }
         public AssetCustomLoader? Loader { get; internal set; }
         public object Content { get; internal set; }
@@ -57,4 +58,6 @@ namespace Fenzwork.Systems.Assets
                 AssetsManager.UnloadAsset(this);
         }
     }
+
+    public record struct AssetSourceInfo( string AssemblyRelativeLocation, AssetInfo Info, bool IsWorkingDir = false);
 }
