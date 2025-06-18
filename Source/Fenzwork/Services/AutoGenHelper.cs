@@ -1,5 +1,4 @@
-﻿using Fenzwork.AssetsLibrary.Models;
-using Fenzwork.Systems.Assets;
+﻿
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -15,17 +14,6 @@ namespace Fenzwork.Services
         {
             FenzworkGame.LongName = longName;
             FenzworkGame.ShortName = shortName;
-        }
-        public static void AddDebugAssetsInfo(string configPath, string assetsPath)
-        {
-            if (assetsPath == string.Empty)
-                return;
-
-            AssetsDebugger.AddDebugAssetsInfo(configPath, assetsPath);
-        }
-        public static void RegisterAssets(string[] assetInfoStr)
-        {
-            AssetsManager.RegisterAssetsEnqueue(assetInfoStr);
         }
     }
 }

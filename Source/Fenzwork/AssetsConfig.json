@@ -1,52 +1,40 @@
 {
-  "Profile": "Reach",
-  "Compress": false,
-  "References": [],
-  "Configurations": [
+  "AssetsDirectoryName": "Content",
+  "EnableDomainFolders": false,
+  "BuildProfile": "Reach",
+  "BuildCompress": false,
+  "BuildReferences": [],
+  "Assets": [
     {
-      "BaseFolder": "Textures",
+      "From": "Textures/",
       "Include": [ "*.png" ],
       "Method": "build",
-      "Type": "Microsoft.Xna.Framework.Graphics.Texture2D",
-      "Properties": [
-        "importer:TextureImporter",
-        "processor:TextureProcessor",
-        "processorParam:ColorKeyColor=255, 0, 255, 255",
-        "processorParam:ColorKeyEnabled=True",
-        "processorParam:GenerateMipmaps=False",
-        "processorParam:PremultiplyAlpha=True",
-        "processorParam:ResizeToPowerOfTwo=False",
-        "processorParam:MakeSquare=False",
-        "processorParam:TextureFormat=Color"
+      "LoadAs": "Microsoft.Xna.Framework.Graphics.Texture2D",
+      "BuildImporter": "TextureImporter",
+      "BuildProcessor": "TextureProcessor",
+      "BuildProcessorParams": [
+        "ColorKeyColor=255, 0, 255, 255",
+        "ColorKeyEnabled=True",
+        "GenerateMipmaps=False",
+        "PremultiplyAlpha=True",
+        "ResizeToPowerOfTwo=False",
+        "MakeSquare=False",
+        "TextureFormat=Color"
       ]
     },
     {
-      "BaseFolder": "Sounds",
-      "Include": [ "*.wav" ],
-      "Method": "build",
-      "Type": "Microsoft.Xna.Framework.SoundEffect",
-      "Properties": [
-        "importer:WavImporter",
-        "processor:SoundEffectProcessor",
-        "processorParam:Quality=Best"
-      ]
-    },
-    {
-      "BaseFolder": "Shaders",
+      "From": "Shaders/",
       "Include": [ "*.fx" ],
       "Method": "build",
-      "Type": "Microsoft.Xna.Framework.Graphics.Effect",
-      "Properties": [
-        "importer:EffectImporter",
-        "processor:EffectProcessor"
-      ]
+      "LoadAs": "Microsoft.Xna.Framework.Graphics.Effect",
+      "BuildImporter": "EffectImporter",
+      "BuildProcessor": "EffectProcessor"
     },
     {
       "Include": [ "*.txt" ],
       "Method": "copy",
-      "Type": "System.String",
+      "LoadAs": "System.String"
     }
-
 
   ]
 }

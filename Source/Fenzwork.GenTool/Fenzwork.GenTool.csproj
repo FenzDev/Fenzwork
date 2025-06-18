@@ -5,6 +5,12 @@
     <TargetFramework>net8.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
+    <PackAsTool>True</PackAsTool>
+    <AssemblyName>fwgentool</AssemblyName>
   </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Fenzwork.GenLib\Fenzwork.GenLib.csproj" />
+  </ItemGroup>
 
 </Project>

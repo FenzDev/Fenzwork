@@ -1,0 +1,8 @@
+<Project>
+    <PropertyGroup>
+        <!-- Constants -->
+        <AssetsDir Condition="'$(AssetsDir)' == ''">Content</AssetsDir> 
+        <AssetsDirBase Condition="'$(AssetsDirBase)' == ''"></AssetsDirBase> 
+        <IsUsingSourceGenTool Condition="'$(IsUsingSourceGenTool)' == ''">False</IsUsingSourceGenTool> <!-- This will indecate whether we use the tool from the source or as dotnet tool -->
+    </PropertyGroup>
+</Project>

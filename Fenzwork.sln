@@ -10,15 +10,12 @@ EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Sandbox", "Tests\Sandbox\Sandbox.csproj", "{52AC8A0E-A5CA-499E-9E8D-48A9433A57F6}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Source", "Source", "{47A546A4-E8D4-40BF-BCAF-0ADB44FCFC87}"
-	ProjectSection(SolutionItems) = preProject
-		Source\AssetsConfig.json = Source\AssetsConfig.json
-	EndProjectSection
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Sandbox.DesktopGL", "Tests\Sandbox.DesktopGL\Sandbox.DesktopGL.csproj", "{2F6A4239-8B18-4C38-B34B-117B7FFD7066}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Fenzwork.GenLib", "Source\Fenzwork.GenLib\Fenzwork.GenLib.csproj", "{D8A8A966-4181-4A7E-A863-C95FC9727866}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Fenzwork.GenTool", "Source\Fenzwork.GenTool\Fenzwork.GenTool.csproj", "{51FD3CB4-5DB1-4821-8F48-5F65501F6EC8}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Fenzwork.GenTool", "Source\Fenzwork.GenTool\Fenzwork.GenTool.csproj", "{51FD3CB4-5DB1-4821-8F48-5F65501F6EC8}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

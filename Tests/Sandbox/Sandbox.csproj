@@ -1,14 +1,21 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
+	
+	<Import Project="../../Source/Fenzwork/Fenzwork.props" />
+	<Import Project="../../Source/Fenzwork/Fenzwork.Assets.Tasks.targets" />
+
   <PropertyGroup>
     <TargetFramework>net8.0</TargetFramework>
-	<IsCore>True</IsCore>
-	<GameName>Sandbox</GameName>
-	<GameShortName>sb</GameShortName>
-	<AssetsSourcePath>Assets</AssetsSourcePath>
 
-	
-	<IsUsingSourceBuildingTool>True</IsUsingSourceBuildingTool>
+	<IsUsingSourceGenTool>True</IsUsingSourceGenTool>
   </PropertyGroup>
+
+  <ItemGroup>
+    <None Remove="AssetsConfig.json" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <AssetsConfig Include="AssetsConfig.json" />
+  </ItemGroup>
   
 	<ItemGroup>
 		<PackageReference Include="MonoGame.Framework.Native" Version="3.8.3" />
@@ -17,5 +24,6 @@
 	<ItemGroup>
 		<ProjectReference Include="..\..\Source\Fenzwork\Fenzwork.csproj" />
 	</ItemGroup>
+
 
 </Project>

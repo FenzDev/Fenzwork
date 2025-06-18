@@ -13,9 +13,8 @@ namespace Fenzwork
         public static string LongName { get; internal set; }
         public static string ShortName { get; internal set; }
 
-        public static void Run(GameCore core)
+        public static void Run(GameCore core, string LongName, string ShortName)
         {
-            
             using MGGame mg = new(core);
 
             mg.Run();

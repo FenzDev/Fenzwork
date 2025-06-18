@@ -1,5 +1,4 @@
-﻿using Fenzwork.Services;
-using System;
+﻿using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
@@ -19,9 +18,6 @@ namespace Fenzwork
         [MethodImpl(MethodImplOptions.NoInlining)]
         public static void Debug(string message, [CallerFilePath] string file = "", [CallerLineNumber] int line = 0)
         {
-            if (!DebugMessenger.IsDebugBuild)
-                return;
-
             var fileName = Path.GetFileName(file);
 
             FlushMessage(LogType.Debug, $"[{fileName}/L:{line}] {message}");
@@ -50,19 +46,15 @@ namespace Fenzwork
             {
                 case LogType.Debug:
                     Debugger.Log(2, "dbg", GenerateMessage(time, "dbg", message));
-                    DebugMessenger.Log(4, time, message);
                     break;
                 case LogType.Info:
                     Debugger.Log(3, "info", GenerateMessage(time, "info", message));
-                    DebugMessenger.Log(3, time, message);
                     break;
                 case LogType.Warning:
                     Debugger.Log(2, "warn", GenerateMessage(time, "warn", message));
-                    DebugMessenger.Log(2, time, message);
                     break;
                 case LogType.Error:
                     Debugger.Log(1, "error", GenerateMessage(time, "error", message));
-                    DebugMessenger.Log(1, time, message);
                     break;
             }
         }

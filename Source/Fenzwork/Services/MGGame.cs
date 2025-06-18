@@ -4,7 +4,6 @@ using Microsoft.Xna.Framework.Input;
 using System;
 using Fenzwork.Graphics;
 using System.Reflection;
-using Fenzwork.Systems.Assets;
 
 namespace Fenzwork.Services
 {
@@ -27,8 +26,6 @@ namespace Fenzwork.Services
         protected override void Initialize()
         {
             Input.Init();
-            AssetsManager.Init();
-            DebugMessenger.Init();
             _Core.Init();
             base.Initialize();
         }
@@ -51,15 +48,12 @@ namespace Fenzwork.Services
             //Assets.Unload(this);
             _Core.PostUnload();
 
-            DebugMessenger.Dispose();
         }
 
         protected override void Update(GameTime gameTime)
         {
             _Core.PreUpdate();
-            DebugMessenger.Tick();
             Input.Update(gameTime);
-            AssetsDebugger.Tick();
             _Core.Update();
         }
 
