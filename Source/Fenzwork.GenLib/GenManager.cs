@@ -10,6 +10,7 @@ public static class GenManager
     public static string AssetsBaseDir = "";
     public static string IntermidateDir = "";
     public static string MGCBFileName = "";
+    public static string Namespace;
 
     const string AssetsClassFileName = "Assets.g.cs";
 
@@ -42,7 +43,7 @@ public static class GenManager
         
         MGCBGenerator.Writer = mgcbWriter;
         MGCBGenerator.Main = mainConfig;
-        AssetsGenerator.Writer = assetsClassWriter;
+        AssetsClassGenerator.Writer = assetsClassWriter;
 
         // 3) We write the header of MGCB
         MGCBGenerator.WriteHeader();
@@ -71,6 +72,9 @@ public static class GenManager
             }
 
 
+        // 5) We write the Assets class
+        AssetsClassGenerator.WriteClass();
+
         // N-1) We close the generated files flushing the buffer !
         mgcbFile.SetLength(mgcbFile.Position);
         mgcbWriter.Close();
@@ -86,8 +90,11 @@ public static class GenManager
         // foreach of the files matching Include patterns
         foreach (var file in thisGroupConfig.Include.SelectMany(pattern => Directory.EnumerateFiles(thisDir, pattern)))
         {
+            var assetName = Path.GetRelativePath(AssetsDirectory, file);
             // Append to the mgcb file
-            MGCBGenerator.WriteAsset(thisGroupConfig, Path.GetRelativePath(AssetsDirectory, file));
+            MGCBGenerator.WriteAsset(thisGroupConfig, assetName);
+            // Include this to the Assets class node tree
+            AssetsClassGenerator.Include(thisGroupConfig, assetName);
         }    
     }
 

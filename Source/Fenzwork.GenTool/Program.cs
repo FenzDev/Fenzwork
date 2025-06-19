@@ -9,7 +9,7 @@ namespace Fenzwork.GenTool
     {
         static void Main(string[] args)
         {
-            if (args.Length != 3)
+            if (args.Length != 4)
             {
                 Console.WriteLine(string.Join("\n\t", args));
                 Console.WriteLine("[Error] Correct arguments format: <AssetsConfigFile> <AssetsBaseDir> <IntermidateDir> <MGCBFileName>");
@@ -18,8 +18,9 @@ namespace Fenzwork.GenTool
 
             GenManager.AssetsConfigFile = args[0];
             GenManager.AssetsBaseDir = args[1];
-            GenManager.IntermidateDir = args[2].Trim('"'); 
-            GenManager.MGCBFileName = ".mgcref.cache"; // For some reasons it always gives me " at the end
+            GenManager.IntermidateDir = args[2]; 
+            GenManager.Namespace = args[3]; 
+            GenManager.MGCBFileName = ".mgcref.cache";
 
             try
             {

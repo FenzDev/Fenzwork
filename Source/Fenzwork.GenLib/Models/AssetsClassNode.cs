@@ -8,7 +8,8 @@ namespace Fenzwork.GenLib.Models
 {
     public class AssetsClassNode
     {
-        public string PropertyName { get; set; }
+        public string Name { get; set; } = "";
+        public string? AssetName { get; set; }
         public string? PropertyType { get; set; }
         public Dictionary<string, AssetsClassNode>? Members { get; set; }
     }

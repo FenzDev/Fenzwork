@@ -4,20 +4,40 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Fenzwork.Services;
+using Fenzwork.Graphics;
+using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
 
 namespace Fenzwork
 {
-    public static class FenzworkGame
+    public class FenzworkGame : Game
     {
         public static string LongName { get; internal set; }
         public static string ShortName { get; internal set; }
 
-        public static void Run(GameCore core, string LongName, string ShortName)
+        public GraphicsDeviceManager _Graphics;
+        public SpriteBatch _SpriteBatch;
+        
+        public FenzworkGame()
         {
-            using MGGame mg = new(core);
+            _Graphics = new GraphicsDeviceManager(this);
+        }
 
-            mg.Run();
+        protected override void Initialize()
+        {
+            Input.Init();
+            base.Initialize();
+        }
+
+        protected override void LoadContent()
+        {
+            _SpriteBatch = new SpriteBatch(GraphicsDevice);
+
+        }
+
+        protected override void Update(GameTime gameTime)
+        {
+            Input.Update(gameTime);
         }
 
     }

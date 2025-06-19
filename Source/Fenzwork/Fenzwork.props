@@ -7,5 +7,7 @@
         <AutoIncludeProjectsMGCB Condition="'$(AutoIncludeProjectsMGCB)' == ''">True</AutoIncludeProjectsMGCB> 
         <!-- This indicates whether we use the tool from the source or as dotnet tool -->
         <IsUsingSourceGenTool Condition="'$(IsUsingSourceGenTool)' == ''">False</IsUsingSourceGenTool> 
+        <!-- The namespace that will be used for Assets class -->
+        <AssetsClassNamespace Condition="'$(AssetsClassNamespace)' == ''">$(MSBuildProjectName)</AssetsClassNamespace> 
     </PropertyGroup>
 </Project>
