@@ -87,7 +87,7 @@ public static class GenManager
         foreach (var file in thisGroupConfig.Include.SelectMany(pattern => Directory.EnumerateFiles(thisDir, pattern)))
         {
             // Append to the mgcb file
-            MGCBGenerator.WriteAsset(thisGroupConfig, file);
+            MGCBGenerator.WriteAsset(thisGroupConfig, Path.GetRelativePath(AssetsDirectory, file));
         }    
     }
 

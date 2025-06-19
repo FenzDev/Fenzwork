@@ -12,9 +12,8 @@ namespace Fenzwork.GenTool
             if (args.Length != 3)
             {
                 Console.WriteLine(string.Join("\n\t", args));
-                    Console.WriteLine("[Error] Correct arguments format: <AssetsConfigFile> <AssetsBaseDir> <IntermidateDir> <MGCBFileName>");
-                    Environment.Exit(1);
-
+                Console.WriteLine("[Error] Correct arguments format: <AssetsConfigFile> <AssetsBaseDir> <IntermidateDir> <MGCBFileName>");
+                Environment.Exit(1);
             }
 
             GenManager.AssetsConfigFile = args[0];

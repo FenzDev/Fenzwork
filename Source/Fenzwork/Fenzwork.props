@@ -1,8 +1,11 @@
 <Project>
+    <!-- Constants -->
     <PropertyGroup>
-        <!-- Constants -->
-        <AssetsDir Condition="'$(AssetsDir)' == ''">Content</AssetsDir> 
+        <!-- Assets base dir (empty means same as project) -->
         <AssetsDirBase Condition="'$(AssetsDirBase)' == ''"></AssetsDirBase> 
-        <IsUsingSourceGenTool Condition="'$(IsUsingSourceGenTool)' == ''">False</IsUsingSourceGenTool> <!-- This will indecate whether we use the tool from the source or as dotnet tool -->
+        <!-- This indicates whether we auto include the Referencing projects' generated MGCB files or no -->
+        <AutoIncludeProjectsMGCB Condition="'$(AutoIncludeProjectsMGCB)' == ''">True</AutoIncludeProjectsMGCB> 
+        <!-- This indicates whether we use the tool from the source or as dotnet tool -->
+        <IsUsingSourceGenTool Condition="'$(IsUsingSourceGenTool)' == ''">False</IsUsingSourceGenTool> 
     </PropertyGroup>
 </Project>

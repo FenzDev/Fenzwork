@@ -29,7 +29,7 @@ namespace Fenzwork.GenLib
             Writer.WriteLine($"/compress:{Main.BuildCompress}");
             Writer.WriteLine($"/profile:{Main.BuildProfile}");
             foreach ( var reference in Main.BuildReferences ) 
-                Writer.WriteLine($"/reference:'{reference}'");
+                Writer.WriteLine($"/reference:{reference}");
             Writer.WriteLine();
         }
         internal static void WriteAsset( AssetsGroupConfig config, string assetName)
@@ -61,14 +61,14 @@ namespace Fenzwork.GenLib
             {
                 Writer.WriteLine($"/processorParam:{processorParam}");
             }
-            Writer.WriteLine($"/build:'{assetName}'");
+            Writer.WriteLine($"/build:{assetName}");
             Writer.WriteLine();
 
         }
         static void WriteCopyAsset(AssetsGroupConfig config, string assetName)
         {
             Writer.WriteLine($"#begin {assetName}");
-            Writer.WriteLine($"/copy:'{assetName}'");
+            Writer.WriteLine($"/copy:{assetName}");
             Writer.WriteLine();
         }
     }

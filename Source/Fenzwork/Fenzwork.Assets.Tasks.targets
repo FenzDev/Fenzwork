@@ -10,23 +10,13 @@
         <DisableFastUpToDateCheck>True</DisableFastUpToDateCheck>
 
         <MGCBFileName>.mgcref.cache</MGCBFileName>
-        <!-- Get the fullpath of assetsDir-->
-        <AssetsFullPath Condition="'$(AssetsDirBase)' != ''">$(MSBuildProjectDirectory)/$(AssetsDirBase)/$(AssetsDir)</AssetsFullPath>
-        <AssetsFullPath Condition="'$(AssetsDirBase)' == ''">$(MSBuildProjectDirectory)/$(AssetsDir)</AssetsFullPath>
 
         <GenToolProjectPath>$(MSBuildThisFileDirectory)/../Fenzwork.GenTool/Fenzwork.Gentool.csproj</GenToolProjectPath>
         <GenToolDllPath>$(MSBuildThisFileDirectory)/../Fenzwork.GenTool/bin/Debug/net8.0/fwgentool.dll</GenToolDllPath>
 
     </PropertyGroup>
-
-    <ItemGroup> 
-        <!-- Include the assets -->
-        <AssetFiles 
-                Include="$(AssetsFullPath)/**/*"
-                Exclude="$(AssetsFullPath)/bin/*/**;$(AssetsFullPath)/obj/**/*;$(AssetsFullPath)/$(MGCBFileName)"/>
-    </ItemGroup>
     
-    <Target Name="FenzworkSetup" BeforeTargets="BeforeBuild">
+    <Target Name="FenzworkSetup" BeforeTargets="BeforeBuild;CollectContentReferences">
         
         <PropertyGroup>
             <IsThereLocalAssets Condition="'@(AssetsConfig)' != ''">True</IsThereLocalAssets>
@@ -35,28 +25,45 @@
             <IsThereOneAssetsConfig>$([System.Int32]::Parse($(_AssetsConfigCount)).Equals(1))</IsThereOneAssetsConfig>
         </PropertyGroup>
 
-        <Message Text="DEBUG   %(AssetFiles.Identity)" Importance="High"/>
         <Error Condition="$(IsThereLocalAssets) AND !$(IsThereOneAssetsConfig)" 
                 Text="Too many AssetConfigs! only one is needed."/>
     </Target>
 
-    <Target Name="BuildGenTool">
+    <Target Name="GenToolBuild">
         <Message Text="Building Fenzwork.GenTool..." Importance="High" />
         <MSBuild Projects="$(GenToolProjectPath)" Targets="Build" Properties="Configuration=Debug"/>
     </Target>
 
-    <Target Name="RunGenTool"
-            DependsOnTargets="BuildGenTool"
+    <Target Name="GenToolRun"
+            DependsOnTargets="GenToolBuild"
+            Condition="$(IsThereLocalAssets)"
             AfterTargets="FenzworkSetup">
     
+        <PropertyGroup>
+            <_AssetsDirectoryBase>$(MSBuildProjectDirectory)/$(AssetsDirBase)</_AssetsDirectoryBase>
+            <AssetsDirectoryBase>$([MSBuild]::NormalizePath($(_AssetsDirectoryBase)).Trim('\'))</AssetsDirectoryBase>
+            <_IntermediateDirectory>$(MSBuildProjectDirectory)/$(IntermediateOutputPath)</_IntermediateDirectory>
+            <IntermediateDirectory>$([MSBuild]::NormalizePath($(_IntermediateDirectory)).Trim('\'))</IntermediateDirectory>
+        </PropertyGroup>
+
         <Message Text="Running Fenzwork.GenTool..." Importance="High" />
         <Exec Condition="$(IsUsingSourceGenTool)"
-              Command="dotnet &quot;$(GenToolDllPath)&quot; &quot;%(AssetsConfig.FullPath)&quot; &quot;$([System.IO.Path]::GetDirectoryName( $([MSBuild]::NormalizePath($(AssetsFullPath)))))&quot; &quot;$([MSBuild]::NormalizePath($(IntermediateOutputPath)))&quot;" />
+              Command="dotnet &quot;$(GenToolDllPath)&quot; &quot;%(AssetsConfig.FullPath)&quot; &quot;$(AssetsDirectoryBase)&quot; &quot;$(IntermediateDirectory)&quot;" />
     
-        <ItemGroup>
-            <MonoGameContentReference Include="$(AssetsFullPath)/$(MGCBFileName)"/>
-        </ItemGroup>
     </Target>
 
+    <Target Name="IncludeLocalMGCB" AfterTargets="GenToolRun">    
+        <ItemGroup>
+            <MonoGameContentReference
+                Include="$(MSBuildProjectDirectory)/$(AssetsDirBase)/**/$(MGCBFileName)"/>
+        </ItemGroup>
+    </Target>
+    
+    <Target Name="IncludeExternalMGCBs" Condition="$(AutoIncludeProjectsMGCB)" AfterTargets="FenzworkSetup">
+        <ItemGroup>
+            <MonoGameContentReference
+                Include="%(ProjectReference.RootDir)%(ProjectReference.Directory)**/$(MGCBFileName)"/>
+        </ItemGroup>
+    </Target>
 
 </Project>
