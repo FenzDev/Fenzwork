@@ -16,12 +16,6 @@ namespace Fenzwork.GenLib
 
         internal static void WriteHeader()
         {
-// outputDir:bin /$(Platform)
-// intermediateDir:obj /$(Platform)
-// platform:DesktopGL
-// config:
-// profile:Reach
-// compress:False
             Writer.WriteLine($"# --- This file is auto generated, any modification will be gone once regenerated --- #");
             Writer.WriteLine($"/outputDir:bin/$(Platform)");
             Writer.WriteLine($"/intermediateDir:obj/$(Platform)");

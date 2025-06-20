@@ -6,8 +6,19 @@ using System.Threading.Tasks;
 
 namespace Fenzwork.Systems.Assets
 {
-    public class Asset<T> 
+    public sealed class Asset<T> : IDisposable
     {
+        internal Asset(AssetRoot root)
+        {
+            _Root = root;
+        }
 
+        private AssetRoot _Root;
+        public AssetRoot Root => _Root;
+
+        public void Dispose()
+        {
+            _Root.DecrementAssetReference();
+        }
     }
 }

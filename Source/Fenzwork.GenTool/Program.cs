@@ -9,10 +9,11 @@ namespace Fenzwork.GenTool
     {
         static void Main(string[] args)
         {
-            if (args.Length != 4)
+            if (args.Length != 6)
             {
+                Console.WriteLine("[Fenzwork.GenTool] [Error] Number of arguments are missing.");
                 Console.WriteLine(string.Join("\n\t", args));
-                Console.WriteLine("[Error] Correct arguments format: <AssetsConfigFile> <AssetsBaseDir> <IntermidateDir> <MGCBFileName>");
+                Console.WriteLine("[Fenzwork.GenTool] [Error] Correct arguments format: <AssetsConfigFile> <AssetsBaseDir> <IntermidateDir> <MGCBFileName> <Configuration>");
                 Environment.Exit(1);
             }
 
@@ -20,13 +21,14 @@ namespace Fenzwork.GenTool
             GenManager.AssetsBaseDir = args[1];
             GenManager.IntermidateDir = args[2]; 
             GenManager.Namespace = args[3]; 
-            GenManager.MGCBFileName = ".mgcref.cache";
+            GenManager.MGCBFileName = args[4];
+            GenManager.IsDebug = args[5].Equals("Debug", StringComparison.OrdinalIgnoreCase);
 
             try
             {
                 GenManager.Start();
             }
-            catch (Exception ex) { Debugger.Launch(); }
+            catch (Exception) { Debugger.Launch(); }
         }
     }
 }

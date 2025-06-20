@@ -45,7 +45,7 @@
         <Message Condition="$(IsThereLocalAssets)"
                 Text="Running Fenzwork.GenTool..." Importance="High" />
         <Exec Condition="$(IsThereLocalAssets) AND $(IsUsingSourceGenTool)"
-              Command="dotnet &quot;$(GenToolDllPath)&quot; &quot;%(AssetsConfig.FullPath)&quot; &quot;$(AssetsDirectoryBase)&quot; &quot;$(IntermediateDirectory)&quot; $(AssetsClassNamespace)" />
+              Command="dotnet &quot;$(GenToolDllPath)&quot; &quot;%(AssetsConfig.FullPath)&quot; &quot;$(AssetsDirectoryBase)&quot; &quot;$(IntermediateDirectory)&quot; $(AssetsClassNamespace) $(MGCBFileName) $(Configuration)" />
     
     </Target>
 

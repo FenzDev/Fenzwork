@@ -10,7 +10,8 @@ public static class GenManager
     public static string AssetsBaseDir = "";
     public static string IntermidateDir = "";
     public static string MGCBFileName = "";
-    public static string Namespace;
+    public static string Namespace = "";
+    public static bool IsDebug;
 
     const string AssetsClassFileName = "Assets.g.cs";
 
@@ -44,9 +45,11 @@ public static class GenManager
         MGCBGenerator.Writer = mgcbWriter;
         MGCBGenerator.Main = mainConfig;
         AssetsClassGenerator.Writer = assetsClassWriter;
+        AssetsRegistryClassGenerator.Writer = assetsClassWriter;
 
         // 3) We write the header of MGCB
         MGCBGenerator.WriteHeader();
+        AssetsRegistryClassGenerator.WriteHead(mainConfig);
 
         // 4 ) We loop through files
         // We search for the assets either from the Assets folder or from inside of its top directories
@@ -72,7 +75,9 @@ public static class GenManager
             }
 
 
-        // 5) We write the Assets class
+        // 5) We write the foot of Assets Registry then below we write the Assets Class
+        AssetsRegistryClassGenerator.WriteFoot();
+        // TODO : Make it optional to generate the Assets class
         AssetsClassGenerator.WriteClass();
 
         // N-1) We close the generated files flushing the buffer !
@@ -90,9 +95,11 @@ public static class GenManager
         // foreach of the files matching Include patterns
         foreach (var file in thisGroupConfig.Include.SelectMany(pattern => Directory.EnumerateFiles(thisDir, pattern)))
         {
-            var assetName = Path.GetRelativePath(AssetsDirectory, file);
+            var assetName = Path.GetRelativePath(AssetsDirectory, file).Replace('\\','/');
             // Append to the mgcb file
             MGCBGenerator.WriteAsset(thisGroupConfig, assetName);
+            // Append to the registry
+            AssetsRegistryClassGenerator.WriteRegistration(thisGroupConfig, assetName);
             // Include this to the Assets class node tree
             AssetsClassGenerator.Include(thisGroupConfig, assetName);
         }    

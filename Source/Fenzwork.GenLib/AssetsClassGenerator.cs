@@ -15,8 +15,7 @@ namespace Fenzwork.GenLib
 
         public static void WriteClass()
         {
-            Writer.WriteLine("using Fenzwork;");
-            Writer.WriteLine("using Fenzwork.Systems.Assets;");
+            Writer.WriteLine();
             Writer.WriteLine($"namespace {GenManager.Namespace}\n{{");
             WriteNodes(ClassNodes, "\t");
             Writer.WriteLine("}");
@@ -27,7 +26,7 @@ namespace Fenzwork.GenLib
             var isProperty = node.Members == null;
             if (isProperty)
             {
-                Writer.WriteLine($"Asset<{node.PropertyType}> {node.Name} => AssetsManager.Get<{node.PropertyType}>(\"{node.AssetName.Replace("\\", "\\\\")}\");");
+                Writer.WriteLine($"Asset<{node.PropertyType}> {node.Name} => AssetsManager.Get<{node.PropertyType}>(\"{node.AssetName}\");");
                 return;
             }
 
@@ -48,7 +47,7 @@ namespace Fenzwork.GenLib
             {
                 if (i == assetNameSplit.Length - 1)
                 {
-                    var newPropertyNode = new AssetsClassNode() { Name = assetNameSplit[i].Split('.')[0].Replace(" ", "").Replace('-', '_'), AssetName = assetName, PropertyType = config.LoadAs };
+                    var newPropertyNode = new AssetsClassNode() { Name = assetNameSplit[i].Split('.', StringSplitOptions.RemoveEmptyEntries)[0].Replace(" ", "").Replace('-', '_'), AssetName = assetName, PropertyType = config.LoadAs };
                     currentNode.Members!.Add(newPropertyNode.Name, newPropertyNode);
                     break;
                 }

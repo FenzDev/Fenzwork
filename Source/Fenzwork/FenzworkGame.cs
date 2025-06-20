@@ -5,21 +5,24 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Fenzwork.Graphics;
+using Fenzwork.Systems.Assets;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
 namespace Fenzwork
 {
-    public class FenzworkGame : Game
+    public abstract class FenzworkGame : Game
     {
         public static string LongName { get; internal set; }
         public static string ShortName { get; internal set; }
 
         public GraphicsDeviceManager _Graphics;
         public SpriteBatch _SpriteBatch;
-        
-        public FenzworkGame()
+
+        public FenzworkGame(string longName, string shortName)
         {
+            LongName = longName;
+            ShortName = shortName;
             _Graphics = new GraphicsDeviceManager(this);
         }
 
@@ -32,7 +35,7 @@ namespace Fenzwork
         protected override void LoadContent()
         {
             _SpriteBatch = new SpriteBatch(GraphicsDevice);
-
+            AssetsManager.InternalInit(GetType().Assembly);
         }
 
         protected override void Update(GameTime gameTime)
