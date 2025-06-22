@@ -57,6 +57,8 @@ public static class GenManager
         if (mainConfig.EnableDomainFolders)
             foreach (var assetGroupConfig in mainConfig.Assets)
             {
+                assetGroupConfig.Method = assetGroupConfig.Method.ToLower();
+
                 foreach (var dir in Directory.EnumerateDirectories(AssetsDirectory))
                 {
                     if (assetGroupConfig.Method.Equals("ignore"))
@@ -68,6 +70,8 @@ public static class GenManager
         else
             foreach (var assetGroupConfig in mainConfig.Assets)
             {
+                assetGroupConfig.Method = assetGroupConfig.Method.ToLower();
+
                 if (assetGroupConfig.Method.Equals("ignore"))
                     continue;
 
@@ -99,7 +103,7 @@ public static class GenManager
             // Append to the mgcb file
             MGCBGenerator.WriteAsset(thisGroupConfig, assetName);
             // Append to the registry
-            AssetsRegistryClassGenerator.WriteRegistration(thisGroupConfig, assetName);
+            AssetsRegistryClassGenerator.WriteRegistration(thisGroupConfig, assetName, file);
             // Include this to the Assets class node tree
             AssetsClassGenerator.Include(thisGroupConfig, assetName);
         }    

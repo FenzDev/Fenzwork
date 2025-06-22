@@ -29,11 +29,11 @@ namespace Fenzwork.GenLib
         internal static void WriteAsset( AssetsGroupConfig config, string assetName)
         {
 
-            if (config.Method.Equals("build", StringComparison.OrdinalIgnoreCase))
+            if (config.Method.Equals("build"))
             {
                 WriteBuildAsset(config, assetName);
             }
-            else if (config.Method.Equals("copy", StringComparison.OrdinalIgnoreCase))
+            else if (config.Method.Equals("copy"))
             {
                 WriteCopyAsset(config, assetName);
             }

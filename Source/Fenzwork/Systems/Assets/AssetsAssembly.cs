@@ -9,10 +9,14 @@ namespace Fenzwork.Systems.Assets
     public class AssetsAssembly
     {
         public string Name { get; init; }
-        public string WorkingDir { get; init; }
-        public string RelativeDir { get; init; }
-        public List<AssetRoot> Roots = [];
+        public string AssetsDir { get; init; }
+        public bool IsDebugging { get; init; }
+        /// <summary>
+        /// Dictionary of AssetRoot along with the loading method.
+        /// </summary>
+        public Dictionary<AssetRoot, string> RootsWithLoadMethod = [];
 
         public override string ToString() => $"AssetsAssembly ({Name})";
+        
     }
 }

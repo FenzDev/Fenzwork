@@ -15,6 +15,9 @@ namespace Fenzwork.Systems.Assets
 
         private AssetRoot _Root;
         public AssetRoot Root => _Root;
+        public T Content => (T)_Root.Content;
+
+        public static implicit operator T(Asset<T> asset) => (T)asset.Content;
 
         public void Dispose()
         {

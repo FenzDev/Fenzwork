@@ -13,6 +13,8 @@ namespace Fenzwork
 {
     public abstract class FenzworkGame : Game
     {
+        internal static Game _GameSingleton { get; private set; }
+
         public static string LongName { get; internal set; }
         public static string ShortName { get; internal set; }
 
@@ -24,6 +26,7 @@ namespace Fenzwork
             LongName = longName;
             ShortName = shortName;
             _Graphics = new GraphicsDeviceManager(this);
+            _GameSingleton = this;
         }
 
         protected override void Initialize()

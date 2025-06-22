@@ -20,8 +20,7 @@ namespace Fenzwork.GenLib
             Writer.WriteLine("using Fenzwork.Systems.Assets;");
             Writer.WriteLine($"namespace Fenzwork._AutoGen\n{{");
             Writer.WriteLine("\tinternal static class AssetsRegistry\n\t{");
-            var workingDirectory = GenManager.IsDebug? $"{GenManager.AssetsDirectory.Replace("\\","\\\\")}": "";
-            Writer.WriteLine($"\t\tprivate const string DebugWorkingDirectory = \"{workingDirectory}\";");
+            Writer.WriteLine($"\t\tprivate const bool IsDebug = {GenManager.IsDebug.ToString().ToLower()};");
             Writer.WriteLine($"\t\tprivate const string AssetsDirectoryName = \"{mainConfig.AssetsDirectoryName}\";");
             Writer.WriteLine("\t\tprivate static void Register()\n\t\t{");
         }
@@ -31,9 +30,10 @@ namespace Fenzwork.GenLib
         }
 
 
-        public static void WriteRegistration(AssetsGroupConfig config, string assetName)
+        public static void WriteRegistration(AssetsGroupConfig config, string assetName, string assetFullPath)
         {
-            Writer.WriteLine($"\t\t\tAssetsManager.Register<{config.LoadAs}>(\"{config.Method}\", \"{assetName}\");");
+            assetFullPath = GenManager.IsDebug ? Path.GetFullPath(assetFullPath).Replace("\\", "\\\\") : string.Empty;
+            Writer.WriteLine($"\t\t\tAssetsManager.Register<{config.LoadAs}>(\"{config.Method}\", \"{assetName}\", \"{assetFullPath}\");");
         }
     }
 }
