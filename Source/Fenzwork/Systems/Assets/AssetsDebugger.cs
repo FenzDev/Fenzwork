@@ -1,8 +1,10 @@
 ﻿using Fenzwork.GenLib;
 using Fenzwork.GenLib.Models;
+using MonoGame.Framework.Utilities;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -31,7 +33,8 @@ namespace Fenzwork.Systems.Assets
 
             var watcher = new FileSystemWatcher(asm.WorkingDirectory)
             {
-                NotifyFilter = NotifyFilters.FileName|NotifyFilters.LastAccess,
+                NotifyFilter = NotifyFilters.FileName|NotifyFilters.LastAccess|NotifyFilters.CreationTime,
+                IncludeSubdirectories = true,
                 EnableRaisingEvents = true
             };
             watcher.Created += File_Created;
@@ -42,19 +45,44 @@ namespace Fenzwork.Systems.Assets
             _WatchersAssemblies.Add(watcher, asm);
         }
 
-        internal static ConcurrentQueue<AssetsDebugRequest> PendingRequest = [];
+        internal static ConcurrentQueue<AssetsHotreloadRequest> PendingRequest = [];
         internal static void Tick()
         {
             while (PendingRequest.TryDequeue(out var request))
             {
+                if (IsProbablyTemp(request.FilePath))
+                    continue;
+
+                if (!File.Exists(request.FilePath))
+                    continue;
+
+                if (request.FileName.StartsWith($"bin{Path.DirectorySeparatorChar}") ||
+                    request.FileName.StartsWith($"obj{Path.DirectorySeparatorChar}"))
+                    continue;
+
                 if (request.IsRegisterNotUnregister)
                 {
-                    var result = Utilities.FileMatchesConfig(request.Asm.WorkingDirectory, request.FilePath, request.AssetsConfig);
-                    if (result.HasValue)
+                    var posibleResult = Utilities.FileMatchesConfig(request.Asm.WorkingDirectory, request.FilePath, request.AssetsConfig);
+                    if (posibleResult.HasValue)
                     {
-                        var type = Type.GetType(result.Value.LoadAs);
+                        var result = posibleResult.Value;
+                        var type = Type.GetType(result.GroupConfig.LoadAs);
+                        
+                        var objDir = Path.Combine("obj", "Debug");
+                        var binDir = Path.Combine("bin", PlatformInfo.MonoGamePlatform.ToString(), ".mgcref");
+                        Directory.CreateDirectory(Path.Combine(request.Asm.WorkingDirectory, objDir));
+                        Directory.CreateDirectory(Path.Combine(request.Asm.WorkingDirectory, binDir));
 
-                        AssetsManager.Register(request.Asm, type, result.Value.Method, result.Value.AssetName, request.FilePath);
+                        if (result.GroupConfig.Method == "build")
+                            ExecuteMGCB(
+                                workingDir: request.Asm.WorkingDirectory,
+                                intermidateDir: objDir,
+                                assetName: result.AssetName,
+                                mainConfig: request.AssetsConfig,
+                                groupConfig: result.GroupConfig,
+                                outputDir: binDir);
+
+                        AssetsManager.Register(request.Asm, type, result.GroupConfig.Method, result.AssetName, request.FilePath);
                     }
                 }
                 else
@@ -70,40 +98,69 @@ namespace Fenzwork.Systems.Assets
             }
         }
 
+        
+
         private static void File_Deleted(object sender, FileSystemEventArgs e)
         {
-            
+            if (_WatchersAssemblies.TryGetValue((FileSystemWatcher)sender, out var asm))
+            {
+                PendingRequest.Enqueue(new(false, e.Name, e.FullPath, asm, _ConfigCache[asm.AssetsConfigFile]));
+            }
         }
 
         private static void File_Renamed(object sender, RenamedEventArgs e)
         {
             if (_WatchersAssemblies.TryGetValue((FileSystemWatcher)sender, out var asm))
             {
-                PendingRequest.Enqueue(new(false, e.OldFullPath, asm, _ConfigCache[asm.AssetsConfigFile]));
-                PendingRequest.Enqueue(new(true, e.FullPath, asm, _ConfigCache[asm.AssetsConfigFile]));
+                PendingRequest.Enqueue(new(false, e.Name, e.OldFullPath, asm, _ConfigCache[asm.AssetsConfigFile]));
+                PendingRequest.Enqueue(new(true, e.Name, e.FullPath, asm, _ConfigCache[asm.AssetsConfigFile]));
             }
             
         }
 
         private static void File_Changed(object sender, FileSystemEventArgs e)
         {
-            if (AssetsManager.DebugPaths.TryGetValue(e.FullPath, out var assetRoot))
+            if (_WatchersAssemblies.TryGetValue((FileSystemWatcher)sender, out var asm))
             {
-                var source = _WatchersAssemblies[(FileSystemWatcher)sender];
-                if (assetRoot.IsLoaded && assetRoot.Source == source)
-                {
-                    // hot reload
-                    AssetsManager.UnloadAsset(assetRoot);
-                    AssetsManager.LoadAsset(assetRoot);
-                }
+                PendingRequest.Enqueue(new(false, e.Name, e.FullPath, asm, _ConfigCache[asm.AssetsConfigFile]));
+                PendingRequest.Enqueue(new(true, e.Name, e.FullPath, asm, _ConfigCache[asm.AssetsConfigFile]));
             }
         }
 
         private static void File_Created(object sender, FileSystemEventArgs e)
         {
+            if (_WatchersAssemblies.TryGetValue((FileSystemWatcher)sender, out var asm))
+            {
+                PendingRequest.Enqueue(new(true, e.Name, e.FullPath, asm, _ConfigCache[asm.AssetsConfigFile]));
+            }
         }
 
+        private static bool IsProbablyTemp(string path) =>  path.EndsWith(".tmp", StringComparison.OrdinalIgnoreCase)
+                                                            || path.EndsWith("~");
+        private static readonly TimeSpan MGCBTimeout = TimeSpan.FromSeconds(10);
+        
+        private static void ExecuteMGCB(string workingDir, string intermidateDir, string assetName, MainConfig mainConfig, AssetsGroupConfig groupConfig, string outputDir )
+        {
+            var refs = string.Join("", mainConfig.BuildReferences.Select(reference => $"/reference:{reference} "));
+            var buildFullParams = $"/importer:{groupConfig.BuildImporter} /processor:{groupConfig.BuildProcessor} {string.Join("", mainConfig.BuildReferences.Select(param => $"/processorParam:{param} "))}";
+
+            var didFinish = Process.Start(new ProcessStartInfo()
+            {
+                FileName = "dotnet",
+                Arguments = $"mgcb /w:\"{workingDir}\" /n:\"{intermidateDir}\" /o:\"{outputDir}\" /compress:false /g:{mainConfig.BuildProfile} {refs}{buildFullParams}/build:{assetName}",
+                WorkingDirectory = Path.GetDirectoryName(workingDir),
+                CreateNoWindow = true,
+                UseShellExecute = false,
+                RedirectStandardOutput = true,
+                RedirectStandardError = true,
+            }).WaitForExit(MGCBTimeout);
+
+            if (!didFinish)
+            {
+                // Log
+            }
+        }
     }
 
-    public record struct AssetsDebugRequest(bool IsRegisterNotUnregister, string FilePath, AssetsAssembly Asm, MainConfig AssetsConfig);
+    public record struct AssetsHotreloadRequest(bool IsRegisterNotUnregister, string FileName, string FilePath, AssetsAssembly Asm, MainConfig AssetsConfig);
 }

@@ -3,6 +3,7 @@ using Fenzwork.Systems.Assets.Loaders;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
+using MonoGame.Framework.Utilities;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -129,10 +130,10 @@ namespace Fenzwork.Systems.Assets
             {
                 wasSourcless = true;
 
+                assetRoot.Source = asm;
+
                 if (regestringAsmHasMorePriority && assetRoot.IsLoaded)
                     UnloadAsset(assetRoot);
-
-                assetRoot.Source = asm;
             }
 
             if (assetRoot.AssetReferencesCounter > 0 && (wasSourcless || !assetRoot.IsLoaded))
@@ -231,8 +232,14 @@ namespace Fenzwork.Systems.Assets
         {
             var assetExtlessName = $"{Path.GetDirectoryName(assetRoot.ID.AssetName)}/{Path.GetFileNameWithoutExtension(assetRoot.ID.AssetName)}";
 
+            string dir;
+            if (assetRoot.Source.IsDebugging)
+                dir = Path.Combine(assetRoot.Source.WorkingDirectory, "bin", PlatformInfo.MonoGamePlatform.ToString(), ".mgcref");
+            else
+                dir = assetRoot.Source.AssetsDir;
+
             var oldDir = FenzworkGame._GameSingleton.Content.RootDirectory;
-            FenzworkGame._GameSingleton.Content.RootDirectory = assetRoot.Source.AssetsDir;
+            FenzworkGame._GameSingleton.Content.RootDirectory = dir;
             FenzworkGame._GameSingleton.Content.UnloadAsset(assetExtlessName);
             FenzworkGame._GameSingleton.Content.RootDirectory = oldDir;
 
@@ -246,11 +253,17 @@ namespace Fenzwork.Systems.Assets
             if (LoadMethod == null)
                 LoadMethod = typeof(ContentManager).GetMethod("Load");
 
+            string dir;
+            if (assetRoot.Source.IsDebugging)
+                dir = Path.Combine(assetRoot.Source.WorkingDirectory, "bin", PlatformInfo.MonoGamePlatform.ToString(), ".mgcref");
+            else
+                dir = assetRoot.Source.AssetsDir;
+
             var assetExtlessName = $"{Path.GetDirectoryName(assetRoot.ID.AssetName)}/{Path.GetFileNameWithoutExtension(assetRoot.ID.AssetName)}";
 
             var genericMethod = LoadMethod.MakeGenericMethod(assetRoot.ID.AssetType);
             var oldDir = FenzworkGame._GameSingleton.Content.RootDirectory;
-            FenzworkGame._GameSingleton.Content.RootDirectory = assetRoot.Source.AssetsDir;
+            FenzworkGame._GameSingleton.Content.RootDirectory = dir;
             var returnedContent = genericMethod.Invoke(FenzworkGame._GameSingleton.Content, [assetExtlessName]);
             FenzworkGame._GameSingleton.Content.RootDirectory = oldDir;
 

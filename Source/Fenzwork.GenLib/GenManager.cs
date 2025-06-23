@@ -56,6 +56,7 @@ public static class GenManager
         // Those directories are called Domain Directories.
         Utilities.GoThroughConfig(mainConfig, AssetsDirectory, (localDir, groupConfig, files) =>
         {
+            groupConfig.LoadAs = groupConfig.LoadAs.Split(", ")[0];
             GenerateFromThisDirectory(localDir, mainConfig, groupConfig, files);
             return true;   
         });

@@ -1,4 +1,5 @@
 ﻿using Fenzwork.GenLib.Models;
+using Microsoft.VisualBasic;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -14,9 +15,10 @@ namespace Fenzwork.GenLib
             ConfigMatchResult? result = null;
             GoThroughConfig(config, assetsDir, (localDir, groupConfig, files) =>
             {
-                if (files.Contains(filePath))
+                var arry = files.ToArray();
+                if (arry.Contains(filePath))
                 {
-                    result = new ConfigMatchResult(Path.GetRelativePath(assetsDir, filePath).Replace('\\', '/'), groupConfig.Method, groupConfig.LoadAs);
+                    result = new ConfigMatchResult(Path.GetRelativePath(assetsDir, filePath).Replace('\\', '/'), groupConfig);
                     return false;
                 }
                 return true;
@@ -27,10 +29,10 @@ namespace Fenzwork.GenLib
         public static void GoThroughConfig(MainConfig mainConfig, string assetsDirPath, Func<string, AssetsGroupConfig, IEnumerable<string>, bool> doContinue)
         {
 
-            
             if (mainConfig.EnableDomainFolders)
                 foreach (var assetGroupConfig in mainConfig.Assets)
                 {
+                    assetGroupConfig.From = assetGroupConfig.From.TrimEnd('/','\\');
                     assetGroupConfig.Method = assetGroupConfig.Method.ToLower();
 
                     foreach (var dir in Directory.EnumerateDirectories(assetsDirPath))
@@ -45,12 +47,14 @@ namespace Fenzwork.GenLib
             else
                 foreach (var assetGroupConfig in mainConfig.Assets)
                 {
+                    assetGroupConfig.From = assetGroupConfig.From.TrimEnd('/', '\\');
                     assetGroupConfig.Method = assetGroupConfig.Method.ToLower();
 
                     if (assetGroupConfig.Method.Equals("ignore"))
                         continue;
 
-                    GoThroughDirectory(Path.Combine(assetsDirPath, assetGroupConfig.From), assetGroupConfig, doContinue);
+                    if (!GoThroughDirectory(Path.Combine(assetsDirPath, assetGroupConfig.From), assetGroupConfig, doContinue))
+                        return;
                 }
 
         }
@@ -62,5 +66,5 @@ namespace Fenzwork.GenLib
             return doContinue(localDir, groupConfig, groupConfig.Include.SelectMany(pattern => Directory.EnumerateFiles(localDir, pattern)));
         }
     }
-    public record struct ConfigMatchResult(string AssetName, string Method, string LoadAs);
+    public record struct ConfigMatchResult(string AssetName, AssetsGroupConfig GroupConfig);
 }

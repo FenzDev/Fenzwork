@@ -47,5 +47,11 @@ namespace Fenzwork
             Input.Update(gameTime);
         }
 
+        protected override void Draw(GameTime gameTime)
+        {
+            base.Draw(gameTime);
+
+        }
+
     }
 }
