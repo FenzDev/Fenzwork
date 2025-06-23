@@ -1,4 +1,5 @@
-﻿using Fenzwork.Systems.Assets.Loaders;
+﻿using Fenzwork.GenLib.Models;
+using Fenzwork.Systems.Assets.Loaders;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
@@ -32,6 +33,11 @@ namespace Fenzwork.Systems.Assets
             SetupAssetsAssembly(FenzworkGame.LongName, 0, asm, "");
         }
             
+        public static void Tick()
+        {
+            AssetsDebugger.Tick();
+        }
+
         /// <summary>
         /// This must be called for when loading mods' Assets, this is also used internally for the actual game
         /// </summary>
@@ -39,18 +45,31 @@ namespace Fenzwork.Systems.Assets
         /// <param name="indexOnList">Index on <see cref="AssetsManager.AssetsAssemblies"/> to know whether to load assets or an asm has more priority.</param>
         /// <param name="assembly">The mod/game assembly where Assets were included with.</param>
         /// <param name="asmRelativeDirectory">The relative path from the main (game) assembly. e.g
-        /// ""=(Game RootsWithLoadMethod) "Mods/CoolMod"=(CoolMod's RootsWithLoadMethod)</param>
+        /// ""=(Game RootsWithTheirMethod) "Mods/CoolMod"=(CoolMod's RootsWithTheirMethod)</param>
         public static AssetsAssembly SetupAssetsAssembly(string name, int indexOnList, Assembly assembly, string asmRelativeDirectory)
         {
             var registry = assembly.GetType("Fenzwork._AutoGen.AssetsRegistry");
 
             var isDbg = (bool)registry.GetField("IsDebug", BindingFlags.Static | BindingFlags.NonPublic).GetValue(null);
+            var workingDir = (string)registry.GetField("WorkingDirectory", BindingFlags.Static | BindingFlags.NonPublic).GetValue(null);
+            var assetConfigFile = (string)registry.GetField("AssetsConfigFile", BindingFlags.Static | BindingFlags.NonPublic).GetValue(null);
             var assetsDirName = (string)registry.GetField("AssetsDirectoryName", BindingFlags.Static | BindingFlags.NonPublic).GetValue(null);
             var registerMethod = registry.GetMethod("Register", BindingFlags.Static | BindingFlags.NonPublic);
 
             var relDir = asmRelativeDirectory == ""? assetsDirName: Path.Combine(asmRelativeDirectory, assetsDirName);
 
-            var assetsAsm = new AssetsAssembly() { Name = name, AssetsDir = relDir, IsDebugging = isDbg };
+            var assetsAsm = new AssetsAssembly() 
+            {
+                Name = name,
+                AssetsDir = relDir,
+                IsDebugging = isDbg,
+                WorkingDirectory = workingDir,
+                AssetsConfigFile = assetConfigFile,
+                TypesAssembly = assembly
+            };
+
+            if (isDbg)
+                AssetsDebugger.SetupDebugAssetsAsm(assetsAsm);
 
             AssetsAssemblies.Insert(indexOnList, assetsAsm);
 
@@ -86,28 +105,73 @@ namespace Fenzwork.Systems.Assets
             return newAssetRoot;
         }
 
+        /// <summary>
+        /// Do not use, this should be used by Assets class when setting up.
+        /// </summary>
         public static void Register<T>(string method, string assetName, string assetDebugFullPath)
         {
-            var assetRoot = GetRoot(assetName, typeof(T));
+            Register(_RegisteringAssetsAssembly, typeof(T), method, assetName, assetDebugFullPath);
+        }
 
-            _RegisteringAssetsAssembly.RootsWithLoadMethod.Add(assetRoot, method);
-            if (_RegisteringAssetsAssembly.IsDebugging)
+        public static AssetRoot Register(AssetsAssembly asm, Type type, string method, string assetName, string assetDebugFullPath)
+        {
+            var assetRoot = GetRoot(assetName, type);
+
+            asm.RootsWithTheirMethod.Add(assetRoot, method);
+            if (asm.IsDebugging)
             {
                 DebugPaths.TryAdd(assetDebugFullPath, assetRoot);
             }
 
-            var regestringAsmHasMorePriority = AssetsAssemblies.IndexOf(assetRoot.Source) < AssetsAssemblies.IndexOf(_RegisteringAssetsAssembly);
+            var wasSourcless = false;
+            var regestringAsmHasMorePriority = AssetsAssemblies.IndexOf(assetRoot.Source) < AssetsAssemblies.IndexOf(asm);
             if (assetRoot.Source == null || regestringAsmHasMorePriority)
             {
-                if (regestringAsmHasMorePriority && !assetRoot.IsLoaded)
+                wasSourcless = true;
+
+                if (regestringAsmHasMorePriority && assetRoot.IsLoaded)
                     UnloadAsset(assetRoot);
-                    
-                assetRoot.Source = _RegisteringAssetsAssembly;
+
+                assetRoot.Source = asm;
             }
 
-            if (assetRoot.AssetReferencesCounter > 0 && !assetRoot.IsLoaded)
-                LoadAsset(assetRoot);
+            if (assetRoot.AssetReferencesCounter > 0 && (wasSourcless || !assetRoot.IsLoaded))
+                LoadAsset(assetRoot, true);
 
+            return assetRoot;
+        }
+
+        public static void Unregister(AssetRoot assetRoot, AssetsAssembly from)
+        {
+            if (!from.RootsWithTheirMethod.Remove(assetRoot))
+                return;
+
+            if (assetRoot.Source == from)
+            {
+                var asmIdx = AssetsAssemblies.IndexOf(from);
+                AssetsAssembly source;
+                do
+                {
+                    if (asmIdx == 0)
+                    {
+                        assetRoot.Source = null;
+                        // we wont unload, we want to keep the previous content.
+                        return;
+                    }
+
+                    source = AssetsAssemblies[--asmIdx];
+
+                } while (!source.RootsWithTheirMethod.ContainsKey(assetRoot));
+
+                if (assetRoot.IsLoaded)
+                    UnloadAsset(assetRoot);
+
+                assetRoot.Source = source;
+                
+                if (assetRoot.IsLoaded)
+                    LoadAsset(assetRoot);
+
+            }
         }
 
         internal static void UnloadAsset(AssetRoot assetRoot)
@@ -115,7 +179,7 @@ namespace Fenzwork.Systems.Assets
             if (assetRoot.Source is null || !assetRoot.IsLoaded)
                 return;
 
-            var method = assetRoot.Source.RootsWithLoadMethod[assetRoot];
+            var method = assetRoot.Source.RootsWithTheirMethod[assetRoot];
 
             if (method.Equals("build"))
                 UnloadBuildAsset(assetRoot);
@@ -124,12 +188,12 @@ namespace Fenzwork.Systems.Assets
 
         }
 
-        internal static void LoadAsset(AssetRoot assetRoot)
+        internal static void LoadAsset(AssetRoot assetRoot, bool forceLoad = false)
         {
-            if (assetRoot.Source is null || assetRoot.IsLoaded)
+            if (!forceLoad && (assetRoot.Source is null || assetRoot.IsLoaded))
                 return;
 
-            var method = assetRoot.Source.RootsWithLoadMethod[assetRoot];
+            var method = assetRoot.Source.RootsWithTheirMethod[assetRoot];
 
             if (method.Equals("build"))
                 LoadBuildAsset(assetRoot);
@@ -149,13 +213,14 @@ namespace Fenzwork.Systems.Assets
         internal static void LoadCopyAsset(AssetRoot assetRoot)
         {
             Stream fileStream;
-            if (Path.IsPathRooted(assetRoot.Source.AssetsDir))
-                fileStream = File.OpenRead(Path.Combine(assetRoot.Source.AssetsDir, assetRoot.ID.AssetName));
+            if (assetRoot.Source.IsDebugging)
+                fileStream = File.OpenRead(Path.Combine(assetRoot.Source.WorkingDirectory, assetRoot.ID.AssetName));
             else
                 fileStream = TitleContainer.OpenStream(Path.Combine(assetRoot.Source.AssetsDir, assetRoot.ID.AssetName));
 
             var assetLoader = RawAssetLoaders[assetRoot.ID.AssetType];
             assetLoader.DoLoad(fileStream, assetRoot.ID, out var content);
+            fileStream.Close();
 
             assetRoot.Content = content;
             assetRoot.IsLoaded = true;

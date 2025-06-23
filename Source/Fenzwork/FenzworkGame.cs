@@ -43,6 +43,7 @@ namespace Fenzwork
 
         protected override void Update(GameTime gameTime)
         {
+            AssetsManager.Tick();
             Input.Update(gameTime);
         }
 

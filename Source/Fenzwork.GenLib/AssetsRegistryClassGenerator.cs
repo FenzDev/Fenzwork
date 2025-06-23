@@ -21,6 +21,10 @@ namespace Fenzwork.GenLib
             Writer.WriteLine($"namespace Fenzwork._AutoGen\n{{");
             Writer.WriteLine("\tinternal static class AssetsRegistry\n\t{");
             Writer.WriteLine($"\t\tprivate const bool IsDebug = {GenManager.IsDebug.ToString().ToLower()};");
+            var workingDir = GenManager.IsDebug ? GenManager.AssetsDirectory.Replace("\\", "\\\\") : "";
+            Writer.WriteLine($"\t\tprivate const string WorkingDirectory = \"{workingDir}\";");
+            var configFile = GenManager.IsDebug ? GenManager.AssetsConfigFile.Replace("\\", "\\\\") : "";
+            Writer.WriteLine($"\t\tprivate const string AssetsConfigFile = \"{configFile}\";");
             Writer.WriteLine($"\t\tprivate const string AssetsDirectoryName = \"{mainConfig.AssetsDirectoryName}\";");
             Writer.WriteLine("\t\tprivate static void Register()\n\t\t{");
         }

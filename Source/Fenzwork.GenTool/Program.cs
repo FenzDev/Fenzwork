@@ -17,7 +17,7 @@ namespace Fenzwork.GenTool
                 Environment.Exit(1);
             }
 
-            GenManager.AssetsConfigFile = args[0];
+            GenManager.AssetsConfigFile = Path.GetFullPath(args[0]);
             GenManager.AssetsBaseDir = args[1];
             GenManager.IntermidateDir = args[2]; 
             GenManager.Namespace = args[3]; 

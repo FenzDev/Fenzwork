@@ -54,30 +54,11 @@ public static class GenManager
         // 4 ) We loop through files
         // We search for the assets either from the Assets folder or from inside of its top directories
         // Those directories are called Domain Directories.
-        if (mainConfig.EnableDomainFolders)
-            foreach (var assetGroupConfig in mainConfig.Assets)
-            {
-                assetGroupConfig.Method = assetGroupConfig.Method.ToLower();
-
-                foreach (var dir in Directory.EnumerateDirectories(AssetsDirectory))
-                {
-                    if (assetGroupConfig.Method.Equals("ignore"))
-                        continue;
-
-                    GenerateFromThisDirectory(Path.Combine(dir, assetGroupConfig.From), mainConfig, assetGroupConfig);
-                }
-            }
-        else
-            foreach (var assetGroupConfig in mainConfig.Assets)
-            {
-                assetGroupConfig.Method = assetGroupConfig.Method.ToLower();
-
-                if (assetGroupConfig.Method.Equals("ignore"))
-                    continue;
-
-                GenerateFromThisDirectory(Path.Combine(AssetsDirectory, assetGroupConfig.From), mainConfig, assetGroupConfig);
-            }
-
+        Utilities.GoThroughConfig(mainConfig, AssetsDirectory, (localDir, groupConfig, files) =>
+        {
+            GenerateFromThisDirectory(localDir, mainConfig, groupConfig, files);
+            return true;   
+        });
 
         // 5) We write the foot of Assets Registry then below we write the Assets Class
         AssetsRegistryClassGenerator.WriteFoot();
@@ -92,12 +73,10 @@ public static class GenManager
 
     }
     
-    static void GenerateFromThisDirectory(string thisDir, MainConfig mainConfig, AssetsGroupConfig thisGroupConfig)
+    static void GenerateFromThisDirectory(string thisDir, MainConfig mainConfig, AssetsGroupConfig thisGroupConfig, IEnumerable<string> files)
     {
-        if (!Directory.Exists(thisDir))
-            return;
         // foreach of the files matching Include patterns
-        foreach (var file in thisGroupConfig.Include.SelectMany(pattern => Directory.EnumerateFiles(thisDir, pattern)))
+        foreach (var file in files)
         {
             var assetName = Path.GetRelativePath(AssetsDirectory, file).Replace('\\','/');
             // Append to the mgcb file
