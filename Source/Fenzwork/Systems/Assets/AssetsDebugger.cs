@@ -1,5 +1,7 @@
 ﻿using Fenzwork.GenLib;
 using Fenzwork.GenLib.Models;
+using Microsoft.Xna.Framework.Content.Pipeline;
+using MonoGame.Framework.Content.Pipeline.Builder;
 using MonoGame.Framework.Utilities;
 using System;
 using System.Collections.Concurrent;
@@ -7,6 +9,8 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Net.NetworkInformation;
+using System.Numerics;
 using System.Reflection;
 using System.Text;
 using System.Text.Json;
@@ -33,7 +37,7 @@ namespace Fenzwork.Systems.Assets
 
             var watcher = new FileSystemWatcher(asm.WorkingDirectory)
             {
-                NotifyFilter = NotifyFilters.FileName|NotifyFilters.LastAccess|NotifyFilters.CreationTime,
+                NotifyFilter = NotifyFilters.FileName|NotifyFilters.LastAccess,
                 IncludeSubdirectories = true,
                 EnableRaisingEvents = true
             };
@@ -144,21 +148,47 @@ namespace Fenzwork.Systems.Assets
             var refs = string.Join("", mainConfig.BuildReferences.Select(reference => $"/reference:{reference} "));
             var buildFullParams = $"/importer:{groupConfig.BuildImporter} /processor:{groupConfig.BuildProcessor} {string.Join("", mainConfig.BuildReferences.Select(param => $"/processorParam:{param} "))}";
 
-            var didFinish = Process.Start(new ProcessStartInfo()
+            var builder = new PipelineManager(workingDir, Path.Combine(workingDir, outputDir), Path.Combine(workingDir, intermidateDir)) { Platform = Enum.Parse<TargetPlatform>(mainConfig.BuildPlatform) };
+            
+            var dict = new OpaqueDataDictionary();
+            // TODO: TEMP
+            foreach(var processorParam in groupConfig.BuildProcessorParams)
             {
-                FileName = "dotnet",
-                Arguments = $"mgcb /w:\"{workingDir}\" /n:\"{intermidateDir}\" /o:\"{outputDir}\" /compress:false /g:{mainConfig.BuildProfile} {refs}{buildFullParams}/build:{assetName}",
-                WorkingDirectory = Path.GetDirectoryName(workingDir),
-                CreateNoWindow = true,
-                UseShellExecute = false,
-                RedirectStandardOutput = true,
-                RedirectStandardError = true,
-            }).WaitForExit(MGCBTimeout);
+                var paramPair = processorParam.Split("=");
+                var paramKey = paramPair[0];
+                var paramValue = paramPair[1];
 
-            if (!didFinish)
-            {
-                // Log
+                if (int.TryParse(paramValue, out var intParam))
+                    dict.Add(paramKey, intParam);
+                else if (float.TryParse(paramValue, out var floatParam))
+                    dict.Add(paramKey, floatParam);
+                else if (bool.TryParse(paramKey, out var boolParam))
+                    dict.Add(paramKey, boolParam);
+                else
+                    dict.Add(paramKey, paramValue);
             }
+
+            try
+            {
+                var something = builder.BuildContent(Path.Combine(workingDir,assetName),
+                    importerName: groupConfig.BuildImporter,
+                    processorName: groupConfig.BuildProcessor,
+                    processorParameters: dict
+                    );
+
+            }
+            catch
+            {
+                Process.Start(new ProcessStartInfo()
+                {
+                    FileName = "dotnet",
+                    Arguments = $"mgfxc.dll \"{Path.Combine(workingDir, assetName)}\" \"{Path.Combine(workingDir, outputDir, assetName)}\"",
+                    UseShellExecute = false,
+                    CreateNoWindow = true,
+                    RedirectStandardOutput = true
+                }).WaitForExit();
+            }
+            
         }
     }
 

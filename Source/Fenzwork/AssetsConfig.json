@@ -13,7 +13,6 @@
       "BuildImporter": "TextureImporter",
       "BuildProcessor": "TextureProcessor",
       "BuildProcessorParams": [
-        "ColorKeyColor=255, 0, 255, 255",
         "ColorKeyEnabled=True",
         "GenerateMipmaps=False",
         "PremultiplyAlpha=True",

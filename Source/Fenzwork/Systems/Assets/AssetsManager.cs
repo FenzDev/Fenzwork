@@ -21,7 +21,7 @@ namespace Fenzwork.Systems.Assets
     {
         public static AssetsAutoLoadingWay AutoLoadingWay = AssetsAutoLoadingWay.Lazy;
 
-        public static Dictionary<Type, AssetRawLoader> RawAssetLoaders = new() { {typeof(string), new TextLoader()} };
+        public static Dictionary<Type, AssetRawLoader> RawAssetLoaders = new() { [typeof(string)] = new TextLoader() } ;
         internal static Dictionary<AssetID, AssetRoot> _AssetsBank = [];
         public static Dictionary<string, AssetRoot> DebugPaths = [];
 

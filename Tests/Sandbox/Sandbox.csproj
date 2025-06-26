@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 	
 	<Import Project="../../Source/Fenzwork/Fenzwork.props" />
-	<Import Project="../../Source/Fenzwork/Fenzwork.Assets.Tasks.targets" />
+	<Import Project="../../Source/Fenzwork/Fenzwork.Tasks.targets" />
 
   <PropertyGroup>
     <TargetFramework>net8.0</TargetFramework>
@@ -18,7 +18,7 @@
   </ItemGroup>
   
 	<ItemGroup>
-		<PackageReference Include="MonoGame.Framework.Native" Version="3.8.3" />
+		<PackageReference Include="MonoGame.Framework.Native" Version="3.8.4" />
 	</ItemGroup>
 
 	<ItemGroup>
