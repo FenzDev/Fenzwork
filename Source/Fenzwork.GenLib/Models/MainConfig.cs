@@ -14,6 +14,8 @@ namespace Fenzwork.GenLib.Models
         [JsonInclude]
         public bool EnableDomainFolders = false;
         [JsonInclude]
+        public bool BuildOnRuntime = false;
+        [JsonInclude]
         public string BuildPlatform = "DesktopGL";
         [JsonInclude]
         public string BuildProfile = "";

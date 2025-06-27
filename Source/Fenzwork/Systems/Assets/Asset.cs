@@ -15,7 +15,10 @@ namespace Fenzwork.Systems.Assets
 
         private AssetRoot _Root;
         public AssetRoot Root => _Root;
+        public AssetID ID => _Root.ID;
         public T Content => (T)_Root.Content;
+
+        public override string ToString() => _Root.ID.ToString();
 
         public static implicit operator T(Asset<T> asset) => (T)asset.Content;
 

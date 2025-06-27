@@ -33,6 +33,8 @@ namespace Fenzwork.Systems.Assets
                 AssetsManager.UnloadAsset(this);
 
         }
+
+        public override string ToString() => ID.ToString();
     }
 
 }

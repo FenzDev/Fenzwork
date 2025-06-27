@@ -15,7 +15,10 @@ using System.Threading.Tasks;
 
 namespace Fenzwork.Systems.Assets
 {
-    public record struct AssetID(string AssetName, Type AssetType);
+    public record struct AssetID(string AssetName, Type AssetType)
+    {
+        public override string ToString() => $"{AssetName} ({AssetType.Name})";
+    }
 
     public static class AssetsManager
     {
@@ -118,7 +121,7 @@ namespace Fenzwork.Systems.Assets
         {
             var assetRoot = GetRoot(assetName, type);
 
-            asm.RootsWithTheirMethod.Add(assetRoot, method);
+            asm.RootsWithTheirMethod.TryAdd(assetRoot, method);
             if (asm.IsDebugging)
             {
                 DebugPaths.TryAdd(assetDebugFullPath, assetRoot);

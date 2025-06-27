@@ -1,11 +1,10 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 	
 	<Import Project="../../Source/Fenzwork/Fenzwork.props" />
-	<Import Project="../../Source/Fenzwork/Fenzwork.Tasks.targets" />
+	<Import Project="../../Source/Fenzwork/Fenzwork.targets" />
 
   <PropertyGroup>
     <TargetFramework>net8.0</TargetFramework>
-
 	<IsUsingSourceGenTool>True</IsUsingSourceGenTool>
   </PropertyGroup>
 
