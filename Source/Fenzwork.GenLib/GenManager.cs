@@ -1,5 +1,6 @@
 ﻿using Fenzwork.GenLib.Models;
 using System.Diagnostics;
+using System.Linq.Expressions;
 using System.Text.Json;
 
 namespace Fenzwork.GenLib;
@@ -16,6 +17,7 @@ public static class GenManager
     const string AssetsClassFileName = "Assets.g.cs";
 
     internal static string AssetsDirectory;
+    internal static AtlasPacker AtlasPacker = new();
 
     /// <summary>
     /// Start full generation of MGCB, Assets class and more.
@@ -47,6 +49,12 @@ public static class GenManager
         AssetsClassGenerator.Writer = assetsClassWriter;
         AssetsRegistryClassGenerator.Writer = assetsClassWriter;
 
+        // 2.5) We Begin AtlasPacker
+        AtlasPacker.WorkingDir = AssetsDirectory;
+        AtlasPacker.Config = mainConfig.Atlas;
+        AtlasPacker.CacheFilePath = Path.Combine(IntermidateDir, $"{mainConfig.AssetsDirectoryName}.sprites.cache");
+        AtlasPacker.Begin();
+
         // 3) We write the header of MGCB
         MGCBGenerator.WriteHeader();
         AssetsRegistryClassGenerator.WriteHead(mainConfig);
@@ -61,6 +69,7 @@ public static class GenManager
             return true;   
         });
 
+
         // 5) We write the foot of Assets Registry then below we write the Assets Class
         AssetsRegistryClassGenerator.WriteFoot();
         // TODO : Make it optional to generate the Assets class
@@ -68,6 +77,7 @@ public static class GenManager
 
         // N-1) We close the generated files flushing the buffer !
         mgcbFile.SetLength(mgcbFile.Position);
+        AtlasPacker.End();
         mgcbWriter.Close();
         assetsClassFile.SetLength(assetsClassFile.Position);
         assetsClassWriter.Close();
@@ -86,7 +96,12 @@ public static class GenManager
             AssetsRegistryClassGenerator.WriteRegistration(thisGroupConfig, assetName, file);
             // Include this to the Assets class node tree
             AssetsClassGenerator.Include(thisGroupConfig, assetName);
-        }    
+            // Add Sprite to pack if method was pack
+            if (thisGroupConfig.Method == "pack")
+                AtlasPacker.AddPack(assetName, file);
+        }
+        if (thisGroupConfig.Method == "pack")
+            AtlasPacker.Generate();
     }
 
 

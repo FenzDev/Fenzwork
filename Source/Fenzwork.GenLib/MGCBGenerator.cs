@@ -37,7 +37,7 @@ namespace Fenzwork.GenLib
             {
                 WriteCopyAsset(config, assetName);
             }
-            else
+            else if (config.Method != "pack")
                 throw new Exception($"Unknown method with the name {config.Method}.");
         }
 

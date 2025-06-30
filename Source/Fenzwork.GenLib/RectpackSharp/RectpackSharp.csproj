@@ -1,0 +1,52 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFrameworks>net5.0;netstandard2.0</TargetFrameworks>
+    <GeneratePackageOnBuild>False</GeneratePackageOnBuild>
+    <Authors>ThomasMiz</Authors>
+    <Company>ThomasMiz</Company>
+    <Product />
+    <PackageTags>rectangles;rectpack;pack;packer;textureatlas;spritesheet;texturepacker</PackageTags>
+    <Description>A lightweight library for packing a list of rectangles into a bin as small as possible.</Description>
+    <PackageIcon>packsharp-logo.png</PackageIcon>
+    <RepositoryUrl>https://github.com/ThomasMiz/RectpackSharp</RepositoryUrl>
+    <PackageProjectUrl>https://github.com/ThomasMiz/RectpackSharp</PackageProjectUrl>
+    <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
+    <Version>1.2.0</Version>
+    <PackageReleaseNotes>- Added Span support on .NET 5.0 and greater</PackageReleaseNotes>
+    <Title>RectpackSharp</Title>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <RepositoryType>git</RepositoryType>
+    <GenerateDocumentationFile>True</GenerateDocumentationFile>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <DocumentationFile></DocumentationFile>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Include="..\LICENSE">
+      <Pack>True</Pack>
+      <PackagePath></PackagePath>
+    </None>
+    <None Include="..\packsharp-logo.png">
+      <Pack>True</Pack>
+      <PackagePath></PackagePath>
+    </None>
+    <None Include="..\README.md">
+      <Pack>True</Pack>
+      <PackagePath>\</PackagePath>
+    </None>
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Bcl.HashCode" Version="1.1.1" />
+    <PackageReference Include="System.Memory" Version="4.5.4" />
+  </ItemGroup>
+
+</Project>

@@ -1,10 +1,26 @@
 {
   "AssetsDirectoryName": "Content",
+  "BuildOnRuntime": false,
   "EnableDomainFolders": false,
+
   "BuildProfile": "Reach",
   "BuildCompress": false,
   "BuildReferences": [],
+
+  "Atlas": {
+    "MaxTextureSize": 4096,
+    "SpritePadding": 2,
+    "PackFrom": "Sprites/",
+    "PackInto": "Textures/"
+  },
+
   "Assets": [
+    {
+      "From": "Sprites/",
+      "Include": [ "*.png" ],
+      "Method": "pack",
+      "LoadAs": "Fenzwork.Graphics.Sprite"
+    },
     {
       "From": "Textures/",
       "Include": [ "*.png" ],
