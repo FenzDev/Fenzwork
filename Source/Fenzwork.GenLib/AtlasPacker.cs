@@ -27,6 +27,9 @@ namespace Fenzwork.GenLib
             // We read sprites cache if there is
             if (File.Exists(CacheFilePath))
                 ReadSpritesCache(File.OpenRead(CacheFilePath));
+
+            foreach (var file in Directory.EnumerateFiles(Path.Combine(WorkingDir, Config.Folder), $"{Config.AtlasNamePrefix}*.png"))
+                File.Delete(file);
         }
 
         public void AddPack(string fileName, string fullPath)
@@ -78,7 +81,7 @@ namespace Fenzwork.GenLib
             // Then we fill both the rects span and metadata array ('SpriteNodes') from 'Sprites'
             Fill(Sprites, spritesRectangles);
             // We Attempt to pack the atlases which reorganize the rectangles
-            Pack(Sprites, spritesRectangles);
+            Pack(Sprites, spritesRectangles, 0);
             // We generate all the atlasses with metadata file
             Generate(spritesRectangles);
 
@@ -89,6 +92,7 @@ namespace Fenzwork.GenLib
             var outputFolder = Path.Combine(WorkingDir, Config.Folder);
             Directory.CreateDirectory(outputFolder);
             using var metadataWriter = new BinaryWriter( File.OpenWrite(Path.Combine(outputFolder, Config.MetadataName)) );
+
 
             metadataWriter.Write(spritesRectangles.Length);
             for (int a = 0; a < Atlases.Count; a++)
@@ -118,7 +122,7 @@ namespace Fenzwork.GenLib
             metadataWriter.BaseStream.SetLength(metadataWriter.BaseStream.Position);
         }
 
-        void Pack(FolderSpriteNode folderNode, Span<PackingRectangle> packingRectangles, int subFoldersUsedCount = -1)
+        void Pack(FolderSpriteNode folderNode, Span<PackingRectangle> packingRectangles, int offest, uint totalAreaWithPadding = 0, int subFoldersUsedCount = -1)
         {
             // This Pack method aims to auto categorize atlasses based on folder to reduce draw calls 
             // supposing that game systems used will try to use only those certain folders
@@ -140,16 +144,18 @@ namespace Fenzwork.GenLib
 
             if (subFoldersUsedCount == -1)
                 subFoldersUsedCount = folderNode.SubFolders.Count;
+            if (totalAreaWithPadding == 0)
+                totalAreaWithPadding = folderNode.TotalAreaWithPadding;
 
             try
             {
                 // compare the total area (plus padding) with max size squared
                 //  if we found that its greater then we throw an error
-                if (folderNode.TotalAreaWithPadding > Config.MaxTextureSize * Config.MaxTextureSize)
+                if (totalAreaWithPadding > Config.MaxTextureSize * Config.MaxTextureSize)
                     throw new Exception();
 
                 // then we attempt to generate the atlas.
-                PackAtlas(packingRectangles);
+                PackAtlas(packingRectangles, offest);
             }
             catch
             {
@@ -159,7 +165,7 @@ namespace Fenzwork.GenLib
                     //   1- There is only one file which is bigger then defined max, simply we throw an error
                     //   2- There are no folders but only files more than one,
                     //      slice the span into two, both sides should have approx equal area
-                    SplitAndPackSprites(packingRectangles, folderNode.TotalAreaWithPadding);
+                    SplitAndPackSprites(packingRectangles, offest, folderNode.TotalAreaWithPadding);
                 }
                 // 3- There is atleast one folder
                 else
@@ -170,14 +176,18 @@ namespace Fenzwork.GenLib
 
                     var lastSubFolder = folderNode.SubFolders[subFoldersUsedCount - 1];
 
-                    Pack(lastSubFolder, packingRectangles[^lastSubFolder.TotalFilesNumber..], lastSubFolder.SubFolders.Count);
-                    Pack(folderNode, packingRectangles[..^lastSubFolder.TotalFilesNumber], subFoldersUsedCount - 1);
+                    Pack(lastSubFolder, packingRectangles[^lastSubFolder.TotalFilesNumber..], packingRectangles.Length - lastSubFolder.TotalFilesNumber, lastSubFolder.TotalAreaWithPadding, lastSubFolder.SubFolders.Count);
+                    if (packingRectangles.Length - lastSubFolder.TotalFilesNumber != 0)
+                    Pack(folderNode, packingRectangles[..^lastSubFolder.TotalFilesNumber], offest, totalAreaWithPadding - lastSubFolder.TotalAreaWithPadding, subFoldersUsedCount - 1);
                 }
             }
         }
 
-        void SplitAndPackSprites(Span<PackingRectangle> packingRectangles, uint totalAreaWithPadding)
+        void SplitAndPackSprites(Span<PackingRectangle> packingRectangles, int offest, uint totalAreaWithPadding)
         {
+            if (packingRectangles.Length == 0)
+                return;
+
             // 1- There is only one file which is bigger then defined max, simply we throw an error
             if (packingRectangles.Length == 1)
                 throw new Exception("One sprite is too big for the atlas.");
@@ -187,40 +197,39 @@ namespace Fenzwork.GenLib
                 // slice the span into two, both sides should have approx equal area
                 uint areaCounter = 0;
                 int i = packingRectangles.Length - 1;
-                while (areaCounter <= (totalAreaWithPadding / 2) && i >= 0)
+                while (areaCounter < (totalAreaWithPadding / 2) && i >= 0)
                 {
                     areaCounter += packingRectangles[i].Area;
                     i--;
                 }
 
-                if (i < 0)
-                    PackAtlas(packingRectangles);
+                if (i <= 0)
+                    PackAtlas(packingRectangles, offest);
                 else
                 {
-                    TryPackSprites(packingRectangles[..^i], totalAreaWithPadding - areaCounter);
-                    TryPackSprites(packingRectangles[^i..], areaCounter);
+                    TryPackSprites(packingRectangles[..^i], offest, totalAreaWithPadding - areaCounter);
+                    TryPackSprites(packingRectangles[^i..], packingRectangles.Length - i, areaCounter);
                 }
 
             }
         }
 
-        int _AtlasCounter;
-        void PackAtlas(Span<PackingRectangle> packingRectangles)
+        void PackAtlas(Span<PackingRectangle> packingRectangles, int offest)
         {
             RectanglePacker.Pack(packingRectangles, out var bounds, maxBoundsWidth: Config.MaxTextureSize, maxBoundsHeight: Config.MaxTextureSize);
-            Atlases.Add(new Atlas(_AtlasCounter, _AtlasCounter + packingRectangles.Length - 1, (int)bounds.Width, (int)bounds.Height));
-            _AtlasCounter += packingRectangles.Length;
+            Atlases.Add(new Atlas(offest, offest + packingRectangles.Length - 1, (int)bounds.Width, (int)bounds.Height));
+            offest += packingRectangles.Length;
         }
 
-        void TryPackSprites(Span<PackingRectangle> packingRectangles, uint totalAreaWithPadding)
+        void TryPackSprites(Span<PackingRectangle> packingRectangles, int offest, uint totalAreaWithPadding)
         {
             try
             {
-                PackAtlas(packingRectangles);
+                PackAtlas(packingRectangles, offest);
             }
             catch
             {
-                SplitAndPackSprites(packingRectangles, totalAreaWithPadding);
+                SplitAndPackSprites(packingRectangles, offest, totalAreaWithPadding);
             }
         }
 
@@ -241,12 +250,14 @@ namespace Fenzwork.GenLib
             for (int i = 0; i < folderNode.Files.Count; i++)
             {
                 var size = folderNode.Files[i].Size;
-                SpriteNodes[i] = folderNode.Files[i];
+                SpriteNodes[_IDCounter] = folderNode.Files[i];
                 packingRectangles[i] = new PackingRectangle(new(0, 0, size.Width + Config.SpritePadding, size.Height + Config.SpritePadding), _IDCounter++);
             }
+            var filesCounter = 0;
             for (int i = 0; i < folderNode.SubFolders.Count; i++)
             {
-                Fill(folderNode.SubFolders[i], packingRectangles[folderNode.Files.Count..]);
+                Fill(folderNode.SubFolders[i], packingRectangles[(folderNode.Files.Count + filesCounter)..]);
+                filesCounter += folderNode.SubFolders[i].TotalFilesNumber;
             }
         }
 

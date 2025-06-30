@@ -59,6 +59,7 @@ public static class GenManager
         MGCBGenerator.WriteHeader();
         AssetsRegistryClassGenerator.WriteHead(mainConfig);
 
+        
         // 4 ) We loop through files
         // We search for the assets either from the Assets folder or from inside of its top directories
         // Those directories are called Domain Directories.
