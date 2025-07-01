@@ -52,7 +52,7 @@ public static class GenManager
         // 2.5) We Begin AtlasPacker
         AtlasPacker.WorkingDir = AssetsDirectory;
         AtlasPacker.Config = mainConfig.Atlas;
-        AtlasPacker.CacheFilePath = Path.Combine(IntermidateDir, $"{mainConfig.AssetsDirectoryName}.sprites.cache");
+        AtlasPacker.SpritesCacheFilePath = Path.Combine(IntermidateDir, $"{mainConfig.AssetsDirectoryName}.sprites.cache");
         AtlasPacker.Begin();
 
         // 3) We write the header of MGCB
@@ -99,7 +99,7 @@ public static class GenManager
             AssetsClassGenerator.Include(thisGroupConfig, assetName);
             // Add Sprite to pack if method was pack
             if (thisGroupConfig.Method == "pack")
-                AtlasPacker.AddPack(assetName, file);
+                AtlasPacker.AddSprite(assetName, file);
         }
         if (thisGroupConfig.Method == "pack")
             AtlasPacker.Generate();

@@ -10,7 +10,7 @@ namespace Fenzwork.GenLib.Models
     public interface ISpriteNode
     {
         public bool IsFolder { get; }
-        public int TotalArea { get; }
+        public long TotalArea { get; }
         public string Name { get; set; }
     }
 
@@ -20,8 +20,8 @@ namespace Fenzwork.GenLib.Models
         public bool IsOrdererd { get; set; }
         public bool IsFolder => true;
         public int TotalFilesNumber { get; set; }
-        public int TotalArea { get; set; }
-        public uint TotalAreaWithPadding { get; set; }
+        public long TotalArea { get; set; }
+        public long TotalAreaWithPadding { get; set; }
         public List<FolderSpriteNode> SubFolders = [];
         public List<FileSpriteNode> Files = [];
     }
@@ -32,7 +32,7 @@ namespace Fenzwork.GenLib.Models
         public bool IsFolder => false;
         public string FullName { get; set; }
         public Size Size { get; set; }
-        public int TotalArea => Size.Width * Size.Height;
+        public long TotalArea => Size.Width * Size.Height;
 
     }
 
