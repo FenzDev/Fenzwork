@@ -20,7 +20,7 @@ namespace Fenzwork.GenLib
                 var arry = files.ToArray();
                 if (arry.Contains(filePath))
                 {
-                    result = new ConfigMatchResult(Path.GetRelativePath(assetsDir, filePath).Replace('\\', '/'), groupConfig);
+                    result = new ConfigMatchResult(Path.GetRelativePath(assetsDir, filePath).Replace('\\', '/'), groupConfig, localDir, files);
                     return false;
                 }
                 return true;
@@ -41,7 +41,7 @@ namespace Fenzwork.GenLib
                         if (assetGroupConfig.Method.Equals("ignore"))
                             continue;
 
-                        if (!GoThroughDirectory(Path.Combine(dir, assetGroupConfig.From), false, assetGroupConfig, doContinue))
+                        if (!GoThroughGroupConfig(Path.Combine(dir, assetGroupConfig.From), false, assetGroupConfig, doContinue))
                             return;
                     }
                 }
@@ -56,13 +56,13 @@ namespace Fenzwork.GenLib
                     if (assetGroupConfig.Method.Equals("ignore"))
                         continue;
 
-                    if (!GoThroughDirectory(Path.Combine(assetsDirPath, assetGroupConfig.From), string.IsNullOrEmpty(assetGroupConfig.From), assetGroupConfig, doContinue))
+                    if (!GoThroughGroupConfig(Path.Combine(assetsDirPath, assetGroupConfig.From), string.IsNullOrEmpty(assetGroupConfig.From), assetGroupConfig, doContinue))
                         return;
                 }
 
             }
         }
-        static bool GoThroughDirectory(string localDir, bool isRootAssetDir, AssetsGroupConfig groupConfig, Func<string, AssetsGroupConfig, IEnumerable<string>, bool> doContinue)
+        public static bool GoThroughGroupConfig(string localDir, bool isRootAssetDir, AssetsGroupConfig groupConfig, Func<string, AssetsGroupConfig, IEnumerable<string>, bool> doContinue)
         {
             if (!Directory.Exists(localDir))
                 return true;
@@ -83,5 +83,5 @@ namespace Fenzwork.GenLib
         }
     }
 
-    public record struct ConfigMatchResult(string AssetName, AssetsGroupConfig GroupConfig);
+    public record struct ConfigMatchResult(string AssetName, AssetsGroupConfig GroupConfig, string LocalDir, IEnumerable<string> GroupFiles);
 }

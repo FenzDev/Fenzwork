@@ -19,7 +19,7 @@ namespace Fenzwork.GenLib
         None = 0,
         // 01
         Soft = 1,
-        // 11  (was set to 3 because when doing `PendingUpdate |= AtlasUpdateType.Soft;` this wont effect it
+        // 11  (was set to 3 because when doing `_PendingUpdate |= AtlasUpdateType.Soft;` this wont effect it
         Hard = 3
     }
 
@@ -33,7 +33,8 @@ namespace Fenzwork.GenLib
         public string WorkingDir;
         public string SpritesCacheFilePath;
         public AtlasConfig Config;
-        public AtlasUpdateType PendingUpdate;
+        public AtlasUpdateType _PendingUpdate;
+        public AtlasUpdateType UpdateType => _PendingUpdate;
 
         public void Begin()
         {
@@ -88,7 +89,7 @@ namespace Fenzwork.GenLib
             else
                 FetchAndTrySoftUpdate();
 
-            if (PendingUpdate == AtlasUpdateType.Hard)
+            if (_PendingUpdate == AtlasUpdateType.Hard)
                 HardUpdate();
         }
 
@@ -145,7 +146,7 @@ namespace Fenzwork.GenLib
                     }
                 }
 
-                if (PendingUpdate == AtlasUpdateType.Soft)
+                if (_PendingUpdate == AtlasUpdateType.Soft)
                     SoftUpdate(metadata);
             }
             catch
@@ -502,11 +503,11 @@ namespace Fenzwork.GenLib
         void AskForSoftUpdate(SpriteFileInfo sprite)
         {
             PendingSpritesForSoftUpdate.Add(sprite);
-            PendingUpdate |= AtlasUpdateType.Soft;
+            _PendingUpdate |= AtlasUpdateType.Soft;
         }
         void AskForHardUpdate()
         {
-            PendingUpdate = AtlasUpdateType.Hard;
+            _PendingUpdate = AtlasUpdateType.Hard;
         }
 
         Size ReadPngSize(string fullPath, DateTime timeStamp)

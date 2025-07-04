@@ -9,9 +9,6 @@ using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Reflection;
-using System.Runtime.CompilerServices;
 using System.Text.Json;
 
 namespace Fenzwork.Systems.Assets
@@ -28,6 +25,7 @@ namespace Fenzwork.Systems.Assets
             {
                 var configFile = File.OpenRead(asm.AssetsConfigFile);
                 var configObj = JsonSerializer.Deserialize<MainConfig>(configFile);
+                configObj.AssetsDirectoryName = configObj.AssetsDirectoryName.TrimEnd('/','\\');
                 configFile.Close();
                 _ConfigCache.Add(asm.AssetsConfigFile, configObj);
             }
@@ -47,20 +45,22 @@ namespace Fenzwork.Systems.Assets
         }
 
         internal static ConcurrentQueue<AssetsHotreloadRequest> PendingRequest = [];
+        internal static ConcurrentDictionary<string, ConcurrentBag<AssetsHotreloadRequest>> PendingRegisteringAfter = [];
+
         internal static void Tick()
         {
             while (PendingRequest.TryDequeue(out var request))
             {
                 if (request.IsRegisterNotUnregister)
                 {
-                    AssetsManager.Register(request.Asm, request.LoadType, request.GroupConfig.Method, request.FileName, request.FilePath);
+                    AssetsManager.Register(request.Asm, request.LoadType, request.GroupConfig.Method, request.FileName, request.FilePath, request.AdditionalParam);
+
                 }
                 else
                 {
                     if (AssetsManager.DebugPaths.Remove(request.FilePath, out var assetRoot))
                     {
                         AssetsManager.Unregister(assetRoot, request.Asm);
-
                     }
                 }
                    
@@ -72,10 +72,10 @@ namespace Fenzwork.Systems.Assets
 
         private static void File_Deleted(object sender, FileSystemEventArgs e)
         {
-            if (_WatchersAssemblies.TryGetValue((FileSystemWatcher)sender, out var asm))
-            {
-                ValidatedRequestForUnregister(e.Name, e.FullPath, asm);
-            }
+            //if (_WatchersAssemblies.TryGetValue((FileSystemWatcher)sender, out var asm))
+            //{
+            //    ValidatedRequestForUnregister(e.Name, e.FullPath, asm);
+            //}
         }
 
         private static void File_Renamed(object sender, RenamedEventArgs e)
@@ -99,10 +99,10 @@ namespace Fenzwork.Systems.Assets
 
         private static void File_Created(object sender, FileSystemEventArgs e)
         {
-            if (_WatchersAssemblies.TryGetValue((FileSystemWatcher)sender, out var asm))
-            {
-                ValidatedRequestForRegister(e.Name, e.FullPath, asm);
-            }
+            //if (_WatchersAssemblies.TryGetValue((FileSystemWatcher)sender, out var asm))
+            //{
+            //    ValidatedRequestForRegister(e.Name, e.FullPath, asm);
+            //}
         }
 
         private static bool IsProbablyNotAsset(string fullPath, string relativePath)
@@ -135,6 +135,7 @@ namespace Fenzwork.Systems.Assets
             // It matches on of the groups
             if (posibleResult.HasValue)
             {
+
                 var result = posibleResult.Value;
 
                 var type = Type.GetType(result.GroupConfig.LoadAs);
@@ -143,13 +144,62 @@ namespace Fenzwork.Systems.Assets
                 var binDir = Path.Combine(asm.WorkingDirectory, "bin", PlatformInfo.MonoGamePlatform.ToString(), ".mgcref");
                 Directory.CreateDirectory(Path.Combine(asm.WorkingDirectory, binDir));
 
+                var isPack = result.GroupConfig.Method == "pack";
+                var packMetadataPath = isPack ? Path.Combine(
+                            result.LocalDir[..^(result.GroupConfig.From.Length + 1)], // This will try to get the Assets path with current domain enabled
+                            result.GroupConfig.PackConfig.PackInto.TrimEnd('/', '\\'),
+                            result.GroupConfig.PackConfig.MetadataName
+                        ) : null;
+
+                var aditionalParams = isPack ? 
+                        Path.GetRelativePath(asm.WorkingDirectory, packMetadataPath).Replace('\\', '/') : null;
+
+
+                var request = new AssetsHotreloadRequest(true, assetName.Replace('\\', '/'), assetPath, asm, type, result.GroupConfig, aditionalParams);
+
                 if (result.GroupConfig.Method == "build")
                     BuildAsset(asm.WorkingDirectory, objDir, assetName, assetPath, config, result.GroupConfig, binDir);
+                else if (isPack)
+                {
+                    var updateType = RegenerateSpritesAtlases(asm.WorkingDirectory, config, result.GroupConfig, result.GroupFiles);
+                    if (updateType == AtlasUpdateType.Hard)
+                        PendingRegisteringAfter.AddOrUpdate(packMetadataPath, [request], (_, list) => { list.Add(request); return list; });
+                    else if (updateType == AtlasUpdateType.Soft)
+                        PendingRequest.Enqueue(request);
 
-                PendingRequest.Enqueue(new (true, assetName.Replace('\\','/'), assetPath, asm, type, result.GroupConfig));
+                    return;
+                }
+
+                PendingRequest.Enqueue(request);
+
+                if (PendingRegisteringAfter.Remove(request.FilePath, out var spriteRegRequests))
+                {
+                    while (spriteRegRequests.TryTake(out var spriteRequest))
+                    {
+                        PendingRequest.Enqueue(spriteRequest);
+                    }
+
+                }
             }
 
         }
+
+        private static AtlasUpdateType RegenerateSpritesAtlases(string workingDir, MainConfig mainConfig, AssetsGroupConfig config, IEnumerable<string> groupFiles)
+        {
+            var atlasPacker = new AtlasPacker
+            {
+                WorkingDir = workingDir,
+                Config = config.PackConfig,
+                SpritesCacheFilePath = Path.Combine(workingDir, "bin", $"AtlasPacker_{mainConfig.AssetsDirectoryName}.{config.PackConfig.PackInto.Replace('/', '.')}.cache")
+            };
+            atlasPacker.Begin();
+            foreach (var sprite in groupFiles)
+                atlasPacker.AddSprite(Path.GetRelativePath(workingDir, sprite).Replace('\\', '/'), sprite);
+            atlasPacker.Generate();
+            atlasPacker.End();
+            return atlasPacker.UpdateType;
+        }
+
         private static void ValidatedRequestForUnregister(string assetName, string assetPath, AssetsAssembly asm)
         {
             if (IsProbablyNotAsset(assetPath, assetName))
@@ -194,6 +244,6 @@ namespace Fenzwork.Systems.Assets
         }
     }
 
-    public record struct AssetsHotreloadRequest(bool IsRegisterNotUnregister, string FileName, string FilePath, AssetsAssembly Asm, Type LoadType, AssetsGroupConfig GroupConfig);
+    public record struct AssetsHotreloadRequest(bool IsRegisterNotUnregister, string FileName, string FilePath, AssetsAssembly Asm, Type LoadType, AssetsGroupConfig GroupConfig, object AdditionalParam = null);
     
 }
