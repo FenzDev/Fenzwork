@@ -49,24 +49,17 @@ public static class GenManager
         AssetsClassGenerator.Writer = assetsClassWriter;
         AssetsRegistryClassGenerator.Writer = assetsClassWriter;
 
-        // 2.5) We Begin AtlasPacker
-        AtlasPacker.WorkingDir = AssetsDirectory;
-        AtlasPacker.Config = mainConfig.Atlas;
-        AtlasPacker.SpritesCacheFilePath = Path.Combine(IntermidateDir, $"{mainConfig.AssetsDirectoryName}.sprites.cache");
-        AtlasPacker.Begin();
-
         // 3) We write the header of MGCB
         MGCBGenerator.WriteHeader();
         AssetsRegistryClassGenerator.WriteHead(mainConfig);
 
-        
         // 4 ) We loop through files
         // We search for the assets either from the Assets folder or from inside of its top directories
         // Those directories are called Domain Directories.
         Utilities.GoThroughConfig(mainConfig, AssetsDirectory, (localDir, groupConfig, files) =>
         {
             groupConfig.LoadAs = groupConfig.LoadAs.Split(", ")[0];
-            GenerateFromThisDirectory(localDir, mainConfig, groupConfig, files);
+            GenerateFromThisGroup(localDir, mainConfig, groupConfig, files);
             return true;   
         });
 
@@ -78,15 +71,34 @@ public static class GenManager
 
         // N-1) We close the generated files flushing the buffer !
         mgcbFile.SetLength(mgcbFile.Position);
-        AtlasPacker.End();
         mgcbWriter.Close();
         assetsClassFile.SetLength(assetsClassFile.Position);
         assetsClassWriter.Close();
 
     }
     
-    static void GenerateFromThisDirectory(string thisDir, MainConfig mainConfig, AssetsGroupConfig thisGroupConfig, IEnumerable<string> files)
+    static void GenerateFromThisGroup(string thisDir, MainConfig mainConfig, AssetsGroupConfig thisGroupConfig, IEnumerable<string> files)
     {
+        var isPack = thisGroupConfig.Method == "pack";
+
+        if (isPack)
+        {
+            if (thisGroupConfig.PackConfig == null)
+            {
+                Console.WriteLine("Pack config was not specified.");
+                return;
+            }
+
+            thisGroupConfig.PackConfig._MetadataFullName = Path.Combine(thisGroupConfig.PackConfig.PackInto, thisGroupConfig.PackConfig.MetadataName).Replace('\\','/');
+
+            // We Begin AtlasPacker
+            thisGroupConfig.PackConfig.PackInto = thisGroupConfig.PackConfig.PackInto.Trim(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar).Replace('\\','/');
+            AtlasPacker.WorkingDir = AssetsDirectory;
+            AtlasPacker.Config = thisGroupConfig.PackConfig;
+            AtlasPacker.SpritesCacheFilePath = Path.Combine(AssetsDirectory, "obj", $"AtlasPacker_{mainConfig.AssetsDirectoryName}.{thisGroupConfig.PackConfig.PackInto.Replace('/','.')}.cache");
+            AtlasPacker.Begin();
+        }
+
         // foreach of the files matching Include patterns
         foreach (var file in files)
         {
@@ -98,11 +110,14 @@ public static class GenManager
             // Include this to the Assets class node tree
             AssetsClassGenerator.Include(thisGroupConfig, assetName);
             // Add Sprite to pack if method was pack
-            if (thisGroupConfig.Method == "pack")
+            if (isPack)
                 AtlasPacker.AddSprite(assetName, file);
         }
-        if (thisGroupConfig.Method == "pack")
+        if (isPack)
+        {
             AtlasPacker.Generate();
+            AtlasPacker.End();
+        }
     }
 
 

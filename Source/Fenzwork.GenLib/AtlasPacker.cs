@@ -94,7 +94,7 @@ namespace Fenzwork.GenLib
 
         void HardUpdate()
         {
-            var atlasFolder = string.IsNullOrEmpty(Config.Folder) ? WorkingDir : Path.Combine(WorkingDir, Config.Folder);
+            var atlasFolder = string.IsNullOrEmpty(Config.PackInto) ? WorkingDir : Path.Combine(WorkingDir, Config.PackInto);
 
             foreach (var file in Directory.EnumerateFiles(atlasFolder, $"{Config.AtlasNamePrefix}*.png"))
                 File.Delete(file);
@@ -121,7 +121,7 @@ namespace Fenzwork.GenLib
         {
             try
             {
-                var dir = string.IsNullOrEmpty(Config.Folder)? WorkingDir: Path.Combine(WorkingDir, Config.Folder);
+                var dir = string.IsNullOrEmpty(Config.PackInto)? WorkingDir: Path.Combine(WorkingDir, Config.PackInto);
                 var metadataFilePath = Path.Combine(dir, Config.MetadataName);
             
                 if (!File.Exists(metadataFilePath))
@@ -156,9 +156,9 @@ namespace Fenzwork.GenLib
 
         void SoftUpdate(BinaryReader metadata)
         {
-            var atlasFileNamePrefix = string.IsNullOrEmpty(Config.Folder) 
+            var atlasFileNamePrefix = string.IsNullOrEmpty(Config.PackInto) 
                 ? Path.Combine(WorkingDir, Config.AtlasNamePrefix)
-                : Path.Combine(WorkingDir, Config.Folder, Config.AtlasNamePrefix);
+                : Path.Combine(WorkingDir, Config.PackInto, Config.AtlasNamePrefix);
             var spritesCount = metadata.ReadInt32();
             for (int i = 0; i < spritesCount; i++)
             {
@@ -292,7 +292,7 @@ namespace Fenzwork.GenLib
 
         void Generate(Span<PackingRectangle> spritesRectangles)
         {
-            var outputFolder = string.IsNullOrEmpty(Config.Folder) ? WorkingDir: Path.Combine(WorkingDir, Config.Folder);
+            var outputFolder = string.IsNullOrEmpty(Config.PackInto) ? WorkingDir: Path.Combine(WorkingDir, Config.PackInto);
             Directory.CreateDirectory(outputFolder);
             using var metadataWriter = new BinaryWriter( File.OpenWrite(Path.Combine(outputFolder, Config.MetadataName)) );
 

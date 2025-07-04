@@ -11,27 +11,40 @@ namespace Fenzwork.Systems.Assets
         internal AssetRoot() { }
 
         public AssetID ID { get; init; }
-        public object Content { get; internal set; }
+        public object? Content { get; internal set; }
         public bool IsLoaded { get; internal set; }
-        
-        private int _AssetReferencesCounter;
-        public int AssetReferencesCounter => _AssetReferencesCounter;
+        public bool SupressUnloading { get; internal set; }
+        public object? Param { get; internal set; }
+        /// <summary>
+        /// This is for when you need to store data that presists loading/unloading process unlike Content.
+        /// </summary>
+        public object? StaticSharedData { get; internal set; }
         public AssetsAssembly Source { get; internal set; }
         
-        internal Asset<T> CreateAndIncrementAssetReference<T>()
+        private List<WeakReference> _AssetReferences = [];
+        public int AssetReferencesCount => _AssetReferences.Count;
+        
+        internal Asset<T> CreateAndAddAssetReference<T>()
         {
-            if (_AssetReferencesCounter++ == 0 && Source != null && !IsLoaded)
+            var asset = new Asset<T>(this);
+
+            for (int i = 0; i < _AssetReferences.Count; i++)
+                if (!_AssetReferences[i].IsAlive)
+                    _AssetReferences.RemoveAt(i--);
+
+            _AssetReferences.Add(new WeakReference(_AssetReferences));
+
+            if (Source != null && !IsLoaded)
                 AssetsManager.LoadAsset(this);
 
-            return new Asset<T>(this);
+            return asset;
         }
-        internal void DecrementAssetReference()
+        internal void RemoveAssetReference<T>(Asset<T> asset)
         {
-            _AssetReferencesCounter--;
-
-            if (_AssetReferencesCounter == 0 && IsLoaded && AssetsManager.AutoLoadingWay == AssetsAutoLoadingWay.Lazy)
-                AssetsManager.UnloadAsset(this);
-
+            for (int i = 0; i < AssetReferencesCount; i++)
+                // if a reference is not alive out of the list and we didn't notice we remove it aswell
+                if (_AssetReferences[i].IsAlive || _AssetReferences[i].Target == asset)
+                    _AssetReferences.RemoveAt(i--);
         }
 
         public override string ToString() => ID.ToString();

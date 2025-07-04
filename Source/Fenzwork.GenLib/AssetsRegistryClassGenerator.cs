@@ -37,7 +37,8 @@ namespace Fenzwork.GenLib
         public static void WriteRegistration(AssetsGroupConfig config, string assetName, string assetFullPath)
         {
             assetFullPath = GenManager.IsDebug ? Path.GetFullPath(assetFullPath).Replace("\\", "\\\\") : string.Empty;
-            Writer.WriteLine($"\t\t\tAssetsManager.Register<{config.LoadAs}>(\"{config.Method}\", \"{assetName}\", \"{assetFullPath}\");");
+            var additionalParam = config.Method.Equals("pack") ? $", \"{config.PackConfig!._MetadataFullName}\"" : "";
+            Writer.WriteLine($"\t\t\tAssetsManager.Register<{config.LoadAs}>(\"{config.Method}\", \"{assetName}\", \"{assetFullPath}\"{additionalParam});");
         }
     }
 }

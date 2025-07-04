@@ -24,8 +24,6 @@ namespace Fenzwork.GenLib.Models
         [JsonInclude]
         public string[] BuildReferences = [ ];
         [JsonInclude]
-        public AtlasConfig Atlas = new();
-        [JsonInclude]
         public AssetsGroupConfig[] Assets = [];
     }
 }

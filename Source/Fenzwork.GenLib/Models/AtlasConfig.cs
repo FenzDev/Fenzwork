@@ -17,8 +17,9 @@ namespace Fenzwork.GenLib.Models
         public string AtlasNamePrefix = "TextureMap_";
         [JsonInclude]
         public string MetadataName = "TextureMap.metadata";
+        public string _MetadataFullName = "";
         [JsonInclude]
-        public string Folder = "";
+        public string PackInto = "";
     }
 
 }

@@ -18,6 +18,8 @@ namespace Fenzwork.GenLib.Models
         [JsonInclude]
         public string LoadAs = "";
         [JsonInclude]
+        public AtlasConfig? PackConfig;
+        [JsonInclude]
         public bool? BuildOnRuntime;
         [JsonInclude]
         public string BuildImporter = "";

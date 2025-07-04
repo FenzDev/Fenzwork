@@ -1,4 +1,5 @@
 ﻿using Fenzwork.GenLib.Models;
+using Fenzwork.Graphics;
 using Fenzwork.Systems.Assets.Loaders;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
@@ -24,7 +25,7 @@ namespace Fenzwork.Systems.Assets
     {
         public static AssetsAutoLoadingWay AutoLoadingWay = AssetsAutoLoadingWay.Lazy;
 
-        public static Dictionary<Type, AssetRawLoader> RawAssetLoaders = new() { [typeof(string)] = new TextLoader() } ;
+        public static Dictionary<Type, AssetRawLoader> RawAssetLoaders = new() { [typeof(string)] = new TextLoader(), [typeof(AtlasMetadata)] = new AtlasMetadataLoader() } ;
         internal static Dictionary<AssetID, AssetRoot> _AssetsBank = [];
         public static Dictionary<string, AssetRoot> DebugPaths = [];
 
@@ -94,7 +95,7 @@ namespace Fenzwork.Systems.Assets
 
         public static Asset<T> Get<T>(string assetName)
         {
-            return GetRoot(assetName, typeof(T)).CreateAndIncrementAssetReference<T>();
+            return GetRoot(assetName, typeof(T)).CreateAndAddAssetReference<T>();
         }
         
         internal static AssetRoot GetRoot(string assetName, Type type)
@@ -112,14 +113,20 @@ namespace Fenzwork.Systems.Assets
         /// <summary>
         /// Do not use, this should be used by Assets class when setting up.
         /// </summary>
-        public static void Register<T>(string method, string assetName, string assetDebugFullPath)
+        public static void Register<T>(string method, string assetName, string assetDebugFullPath, object otherParam = null)
         {
-            Register(_RegisteringAssetsAssembly, typeof(T), method, assetName, assetDebugFullPath);
+            Register(_RegisteringAssetsAssembly, typeof(T), method, assetName, assetDebugFullPath, otherParam);
         }
 
-        public static AssetRoot Register(AssetsAssembly asm, Type type, string method, string assetName, string assetDebugFullPath)
+        public static AssetRoot Register(AssetsAssembly asm, Type type, string method, string assetName, string assetDebugFullPath, object otherParam = null)
         {
             var assetRoot = GetRoot(assetName, type);
+
+            if (method == "pack")
+            {
+                assetRoot.StaticSharedData = new SpriteStaticData();
+                assetRoot.Param = Get<AtlasMetadata>((string)otherParam!);
+            }
 
             asm.RootsWithTheirMethod.TryAdd(assetRoot, method);
             if (asm.IsDebugging)
@@ -139,7 +146,7 @@ namespace Fenzwork.Systems.Assets
                     UnloadAsset(assetRoot);
             }
 
-            if (assetRoot.AssetReferencesCounter > 0 && (wasSourcless || !assetRoot.IsLoaded))
+            if (assetRoot.AssetReferencesCount > 0 && (wasSourcless || !assetRoot.IsLoaded))
                 LoadAsset(assetRoot, true);
 
             return assetRoot;
@@ -189,6 +196,8 @@ namespace Fenzwork.Systems.Assets
                 UnloadBuildAsset(assetRoot);
             else if (method.Equals("copy"))
                 UnloadCopyAsset(assetRoot);
+            else if (method.Equals("pack"))
+                UnloadSpriteAsset(assetRoot);
 
         }
 
@@ -203,7 +212,28 @@ namespace Fenzwork.Systems.Assets
                 LoadBuildAsset(assetRoot);
             else if (method.Equals("copy"))
                 LoadCopyAsset(assetRoot);
+            else if (method.Equals("pack"))
+                LoadSpriteAsset(assetRoot);
 
+        }
+
+        internal static void LoadSpriteAsset(AssetRoot assetRoot)
+        {
+            var sprite = new Sprite() { _Metadata = (Asset<AtlasMetadata>)assetRoot.Param };
+            var spriteMetadata = sprite._Metadata.Content.Sprites[assetRoot];
+            sprite.Texture = sprite._Metadata.Content.Atlases[spriteMetadata.AtlasId].CreateAndAddAssetReference<Texture2D>();
+            sprite.SourceRect = new (spriteMetadata.X, spriteMetadata.Y, spriteMetadata.Width, spriteMetadata.Height);
+            sprite.FrameData = (SpriteStaticData)assetRoot.StaticSharedData!;
+
+            assetRoot.Content = sprite;
+            assetRoot.IsLoaded = true;
+        }
+        internal static void UnloadSpriteAsset(AssetRoot assetRoot)
+        {
+            ((Sprite)assetRoot.Content!).Texture.Dispose();
+
+            assetRoot.IsLoaded = false;
+            assetRoot.Content = null;
         }
 
         internal static void UnloadCopyAsset(AssetRoot assetRoot)
