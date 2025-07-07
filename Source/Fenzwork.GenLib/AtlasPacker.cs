@@ -38,6 +38,8 @@ namespace Fenzwork.GenLib
 
         public void Begin()
         {
+            Directory.CreateDirectory(Path.GetDirectoryName(SpritesCacheFilePath)!);
+
             // We read sprites cache if there is
             if (File.Exists(SpritesCacheFilePath))
                 ReadSpritesCache(File.OpenRead(SpritesCacheFilePath));

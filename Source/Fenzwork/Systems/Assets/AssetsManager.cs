@@ -1,5 +1,4 @@
-﻿using Fenzwork.GenLib.Models;
-using Fenzwork.Graphics;
+﻿using Fenzwork.Graphics;
 using Fenzwork.Systems.Assets.Loaders;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
@@ -29,6 +28,9 @@ namespace Fenzwork.Systems.Assets
         internal static Dictionary<AssetID, AssetRoot> _AssetsBank = [];
         public static Dictionary<string, AssetRoot> DebugPaths = [];
 
+        public static Action<AssetsAssembly> DebuggerInitMethod { get; set; } = null;
+        public static Action DebuggerTickMethod { get; set; } = null;
+
         public static void Init()
         {
             InternalInit(Assembly.GetCallingAssembly());
@@ -37,10 +39,10 @@ namespace Fenzwork.Systems.Assets
         {
             SetupAssetsAssembly(FenzworkGame.LongName, 0, asm, "");
         }
-            
+
         public static void Tick()
         {
-            AssetsDebugger.Tick();
+            DebuggerTickMethod?.Invoke();
         }
 
         /// <summary>
@@ -51,6 +53,8 @@ namespace Fenzwork.Systems.Assets
         /// <param name="assembly">The mod/game assembly where Assets were included with.</param>
         /// <param name="asmRelativeDirectory">The relative path from the main (game) assembly. e.g
         /// ""=(Game RootsWithTheirMethod) "Mods/CoolMod"=(CoolMod's RootsWithTheirMethod)</param>
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Trimming", "IL2026:Members annotated with 'RequiresUnreferencedCodeAttribute' require dynamic access otherwise can break functionality when trimming application code", Justification = "<Pending>")]
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Trimming", "IL2075:'this' argument does not satisfy 'DynamicallyAccessedMembersAttribute' in call to target method. The return value of the source method does not have matching annotations.", Justification = "<Pending>")]
         public static AssetsAssembly SetupAssetsAssembly(string name, int indexOnList, Assembly assembly, string asmRelativeDirectory)
         {
             var registry = assembly.GetType("Fenzwork._AutoGen.AssetsRegistry");
@@ -63,18 +67,22 @@ namespace Fenzwork.Systems.Assets
 
             var relDir = asmRelativeDirectory == ""? assetsDirName: Path.Combine(asmRelativeDirectory, assetsDirName);
 
-            var assetsAsm = new AssetsAssembly() 
+            var assetsAsm = new AssetsAssembly()
             {
                 Name = name,
                 AssetsDir = relDir,
                 IsDebugging = isDbg,
                 WorkingDirectory = workingDir,
+                BuildOutputDirectory = isDbg? Path.Combine(workingDir, "bin", PlatformInfo.MonoGamePlatform.ToString(), ".mgcref") 
+                                            : string.Empty,
+                BuildIntermediateDirectory = isDbg? Path.Combine(workingDir, "obj", PlatformInfo.MonoGamePlatform.ToString(), "net8.0", ".mgcref")
+                                            : string.Empty,
                 AssetsConfigFile = assetConfigFile,
                 TypesAssembly = assembly
             };
 
             if (isDbg)
-                AssetsDebugger.SetupDebugAssetsAsm(assetsAsm);
+                DebuggerInitMethod?.Invoke(assetsAsm);
 
             AssetsAssemblies.Insert(indexOnList, assetsAsm);
 

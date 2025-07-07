@@ -1,0 +1,1 @@
+﻿Fenzwork.Ase2Png.AseProcessor.Process(args[0], args[1]);

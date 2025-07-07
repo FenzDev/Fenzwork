@@ -1,0 +1,25 @@
+<Project>
+    
+    <Target Name="BuildFWAse2Png">
+        <Message Text="Building Fenzwork.Ase2Png.Tool ..." Importance="Normal" />
+        <MSBuild Projects="$(MSBuildThisFileDirectory)Fenzwork.Ase2Png.csproj" Targets="Build" Properties="Configuration=Debug"/>
+    </Target>
+
+    <Target Name="FWAse2Png" DependsOnTargets="BuildFWAse2Png" BeforeTargets="Build;GenToolRun">
+        <PropertyGroup>
+            <Ase2PngToolDllPath>$(MSBuildThisFileDirectory)bin/$(Configuration)/net8.0/ase2png.dll</Ase2PngToolDllPath>
+            <Ase2PngDir Condition="'$(Ase2PngDir)' == ''">$(MSBuildProjectDirectory)</Ase2PngDir>
+        </PropertyGroup>
+        <ItemGroup>
+            <FWAseFile Include="$(Ase2PngDir)/**/*.ase" />
+        </ItemGroup>
+    </Target>
+
+    <Target Name="FWAse2PngExecution" AfterTargets="FWAse2Png" Inputs="@(FWAseFile)" Outputs="@(FWAseFile->'%(RecursiveDir)%(Filename).png')">
+        <Exec
+              Command="dotnet &quot;$(Ase2PngToolDllPath)&quot; &quot;%(FWAseFile.Identity)&quot; &quot;%(FWAseFile.RecursiveDir)%(FWAseFile.Filename).png&quot;" />
+    
+        <Message Importance="High" Text="[Ase2Png] Generating &quot;%(FWAseFile.RecursiveDir)%(FWAseFile.Filename).png&quot;"/>
+    </Target>
+
+</Project>

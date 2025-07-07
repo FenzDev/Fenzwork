@@ -15,6 +15,8 @@ namespace Fenzwork.Systems.Assets
         public bool IsDebugging { get; init; }
         public string AssetsConfigFile { get; init; }
         public string WorkingDirectory { get; init; }
+        public string BuildOutputDirectory { get; init; }
+        public string BuildIntermediateDirectory { get; init; }
         /// <summary>
         /// Dictionary of AssetRoot along with the loading method.
         /// </summary>

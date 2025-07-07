@@ -28,7 +28,7 @@ namespace Fenzwork.GenTool
             {
                 GenManager.Start();
             }
-            catch (Exception) { Debugger.Launch(); }
+            catch (Exception ex) { Console.WriteLine(ex); Environment.Exit(1); }
         }
     }
 }

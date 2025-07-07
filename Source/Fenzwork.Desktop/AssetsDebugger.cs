@@ -1,8 +1,6 @@
 ﻿using Fenzwork.GenLib;
 using Fenzwork.GenLib.Models;
 using Microsoft.Xna.Framework.Content.Pipeline;
-using Microsoft.Xna.Framework.Content.Pipeline.Processors;
-using Microsoft.Xna.Framework.Graphics;
 using MonoGame.Framework.Content.Pipeline.Builder;
 using MonoGame.Framework.Utilities;
 using System;
@@ -10,14 +8,42 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.IO;
 using System.Text.Json;
+using Fenzwork.Systems.Assets;
+using System.Diagnostics;
+using System.Linq;
+using Fenzwork.Ase2Png;
+using System.Threading.Tasks;
 
-namespace Fenzwork.Systems.Assets
+namespace Fenzwork.Desktop
 {
     public static class AssetsDebugger
     {
         internal static Dictionary<FileSystemWatcher, AssetsAssembly> _WatchersAssemblies = [];
 
         internal static Dictionary<string, MainConfig> _ConfigCache = [];
+
+        internal static bool _IsAse2PngOn = false;
+
+        public static void Init()
+        {
+            AssetsManager.DebuggerInitMethod = SetupDebugAssetsAsm;
+            AssetsManager.DebuggerTickMethod = Tick;
+
+            VerifyAse2Png();
+        }
+
+        private static void VerifyAse2Png()
+        {
+            try
+            {
+                AseProcessor.Dummy();
+
+                // if no error happened then that means Ase2Png does exist
+                _IsAse2PngOn = true;
+            }
+            catch { }
+        }
+
 
         internal static void SetupDebugAssetsAsm(AssetsAssembly asm)
         {
@@ -72,25 +98,27 @@ namespace Fenzwork.Systems.Assets
 
         private static void File_Deleted(object sender, FileSystemEventArgs e)
         {
-            //if (_WatchersAssemblies.TryGetValue((FileSystemWatcher)sender, out var asm))
-            //{
-            //    ValidatedRequestForUnregister(e.Name, e.FullPath, asm);
-            //}
+            if (_WatchersAssemblies.TryGetValue((FileSystemWatcher)sender, out var asm))
+            {
+                ValidatedRequestForUnregister(e.Name, e.FullPath, asm);
+            }
         }
 
         private static void File_Renamed(object sender, RenamedEventArgs e)
         {
             if (_WatchersAssemblies.TryGetValue((FileSystemWatcher)sender, out var asm))
             {
-                ValidatedRequestForUnregister(e.OldName, e.OldFullPath, asm);
-                ValidatedRequestForRegister(e.Name, e.FullPath, asm);
+                if (IsNotAsset(e.OldFullPath, e.OldName))
+                    ValidatedRequestForUnregister(e.OldName, e.OldFullPath, asm);
+                if (IsNotAsset(e.FullPath, e.Name))
+                    ValidatedRequestForRegister(e.Name, e.FullPath, asm);
             }
             
         }
 
         private static void File_Changed(object sender, FileSystemEventArgs e)
         {
-            if (_WatchersAssemblies.TryGetValue((FileSystemWatcher)sender, out var asm))
+            if (_WatchersAssemblies.TryGetValue((FileSystemWatcher)sender, out var asm) && !IsNotAsset(e.FullPath, e.Name))
             {
                 ValidatedRequestForUnregister(e.Name, e.FullPath, asm);
                 ValidatedRequestForRegister(e.Name, e.FullPath, asm);
@@ -105,7 +133,7 @@ namespace Fenzwork.Systems.Assets
             //}
         }
 
-        private static bool IsProbablyNotAsset(string fullPath, string relativePath)
+        private static bool IsNotAsset(string fullPath, string relativePath)
         {
             if (relativePath.StartsWith($"bin{Path.DirectorySeparatorChar}") ||
                 relativePath.StartsWith($"obj{Path.DirectorySeparatorChar}"))
@@ -124,25 +152,35 @@ namespace Fenzwork.Systems.Assets
 
             return false;
         }
-        
-        private static void ValidatedRequestForRegister(string assetName, string assetPath, AssetsAssembly asm)
+
+        private static void Ase2Png(string assetPath)
         {
-            if (IsProbablyNotAsset(assetPath, assetName))
+            try
+            {
+                AseProcessor.Process(assetPath, $"{Path.Combine(Path.GetDirectoryName(assetPath), Path.GetFileNameWithoutExtension(assetPath))}.png");
+            } catch { }
+        }
+
+        private static void ValidatedRequestForRegister(string assetName, string assetPath, AssetsAssembly asm, ConfigMatchResult? configMatchResult = null)
+        {
+            if (_IsAse2PngOn && assetName.EndsWith(".ase"))
+            {
+                Ase2Png(assetPath);
                 return;
+            }
 
             var config = _ConfigCache[asm.AssetsConfigFile];
-            var posibleResult = Utilities.FileMatchesConfig(asm.WorkingDirectory, assetPath, config);
-            // It matches on of the groups
-            if (posibleResult.HasValue)
-            {
 
-                var result = posibleResult.Value;
+            configMatchResult ??= Utilities.FileMatchesConfig(asm.WorkingDirectory, assetPath, config);
+
+            // It matches one of the groups
+            if (configMatchResult.HasValue)
+            {
+                var result = configMatchResult.Value;
 
                 var type = Type.GetType(result.GroupConfig.LoadAs);
 
-                var objDir = Path.Combine(asm.WorkingDirectory, "obj", PlatformInfo.MonoGamePlatform.ToString(), "net8.0", ".mgcref");
-                var binDir = Path.Combine(asm.WorkingDirectory, "bin", PlatformInfo.MonoGamePlatform.ToString(), ".mgcref");
-                Directory.CreateDirectory(Path.Combine(asm.WorkingDirectory, binDir));
+                Directory.CreateDirectory(Path.Combine(asm.WorkingDirectory, asm.BuildOutputDirectory));
 
                 var isPack = result.GroupConfig.Method == "pack";
                 var packMetadataPath = isPack ? Path.Combine(
@@ -154,11 +192,10 @@ namespace Fenzwork.Systems.Assets
                 var aditionalParams = isPack ? 
                         Path.GetRelativePath(asm.WorkingDirectory, packMetadataPath).Replace('\\', '/') : null;
 
-
                 var request = new AssetsHotreloadRequest(true, assetName.Replace('\\', '/'), assetPath, asm, type, result.GroupConfig, aditionalParams);
 
                 if (result.GroupConfig.Method == "build")
-                    BuildAsset(asm.WorkingDirectory, objDir, assetName, assetPath, config, result.GroupConfig, binDir);
+                    BuildAsset(asm.WorkingDirectory, asm.BuildIntermediateDirectory, assetName, assetPath, config, result.GroupConfig, asm.BuildOutputDirectory);
                 else if (isPack)
                 {
                     var updateType = RegenerateSpritesAtlases(asm.WorkingDirectory, config, result.GroupConfig, result.GroupFiles);
@@ -184,13 +221,20 @@ namespace Fenzwork.Systems.Assets
 
         }
 
+        private static void ValidatedRequestForUnregister(string assetName, string assetPath, AssetsAssembly asm)
+        {
+            if (AssetsManager.DebugPaths.ContainsKey(assetPath))
+                PendingRequest.Enqueue(new AssetsHotreloadRequest(false, assetName.Replace('\\', '/'), assetPath, asm, null, null));
+
+        }
+
         private static AtlasUpdateType RegenerateSpritesAtlases(string workingDir, MainConfig mainConfig, AssetsGroupConfig config, IEnumerable<string> groupFiles)
         {
             var atlasPacker = new AtlasPacker
             {
                 WorkingDir = workingDir,
                 Config = config.PackConfig,
-                SpritesCacheFilePath = Path.Combine(workingDir, "bin", $"AtlasPacker_{mainConfig.AssetsDirectoryName}.{config.PackConfig.PackInto.Replace('/', '.')}.cache")
+                SpritesCacheFilePath = Path.Combine(workingDir, "obj", ".AtlasPacker", $"{mainConfig.AssetsDirectoryName}.{config.PackConfig.PackInto.Replace('/', '.').TrimEnd('.')}.cache")
             };
             atlasPacker.Begin();
             foreach (var sprite in groupFiles)
@@ -200,18 +244,8 @@ namespace Fenzwork.Systems.Assets
             return atlasPacker.UpdateType;
         }
 
-        private static void ValidatedRequestForUnregister(string assetName, string assetPath, AssetsAssembly asm)
-        {
-            if (IsProbablyNotAsset(assetPath, assetName))
-                return;
-
-            if (AssetsManager.DebugPaths.ContainsKey(assetPath))
-                PendingRequest.Enqueue(new AssetsHotreloadRequest(false, assetName.Replace('\\', '/'), assetPath, asm, null, null));
-
-        }
-
         private static bool IsProbablyTemp(string path) =>  path.EndsWith(".tmp", StringComparison.OrdinalIgnoreCase)
-                                                            || path.EndsWith("~");
+                                                            || path.EndsWith('~');
         private static void BuildAsset(string workingDir, string intermidateDir, string assetName, string assetFullPath, MainConfig mainConfig, AssetsGroupConfig groupConfig, string outputDir )
         {
             var builder = new PipelineManager(workingDir, outputDir, intermidateDir) { Platform = Enum.Parse<TargetPlatform>(mainConfig.BuildPlatform) };

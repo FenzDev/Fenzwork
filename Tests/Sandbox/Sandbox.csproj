@@ -2,6 +2,7 @@
 	
 	<Import Project="../../Source/Fenzwork/Fenzwork.props" />
 	<Import Project="../../Source/Fenzwork/Fenzwork.targets" />
+	<Import Project="../../Source/Fenzwork.Ase2Png/Ase2Png.targets" />
 
   <PropertyGroup>
     <TargetFramework>net8.0</TargetFramework>
@@ -21,8 +22,12 @@
 	</ItemGroup>
 
 	<ItemGroup>
+		<ProjectReference Include="..\..\Source\Fenzwork.Ase2Png\Fenzwork.Ase2Png.csproj" />
 		<ProjectReference Include="..\..\Source\Fenzwork\Fenzwork.csproj" />
 	</ItemGroup>
 
+	<ItemGroup>
+		<None Include="**/.mgcref.cache" Visible="False" />
+    </ItemGroup>
 
 </Project>

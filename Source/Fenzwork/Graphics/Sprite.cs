@@ -45,6 +45,10 @@ namespace Fenzwork.Graphics
                 return new Rectangle(x * fw, y * fh, fw, fh);
             }
         }
+
+
+        public static implicit operator Texture2D(Sprite sprite) => sprite.Texture;
+
     }
 
     public record struct SpriteStaticData(

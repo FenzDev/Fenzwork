@@ -95,7 +95,7 @@ public static class GenManager
             thisGroupConfig.PackConfig.PackInto = thisGroupConfig.PackConfig.PackInto.Trim(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar).Replace('\\','/');
             AtlasPacker.WorkingDir = AssetsDirectory;
             AtlasPacker.Config = thisGroupConfig.PackConfig;
-            AtlasPacker.SpritesCacheFilePath = Path.Combine(AssetsDirectory, "obj", $"AtlasPacker_{mainConfig.AssetsDirectoryName}.{thisGroupConfig.PackConfig.PackInto.Replace('/','.')}.cache");
+            AtlasPacker.SpritesCacheFilePath = Path.Combine(AssetsDirectory, "obj", ".AtlasPacker", $"{mainConfig.AssetsDirectoryName}.{thisGroupConfig.PackConfig.PackInto.Replace('/','.')}.cache");
             AtlasPacker.Begin();
         }
 
