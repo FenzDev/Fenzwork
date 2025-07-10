@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace Fenzwork.Systems.Assets.Loaders
 {
-    public class TextLoader : AssetRawLoader
+    public class TextLoader : RawAssetLoader
     {
         protected override void Load(Stream stream, AssetID assetID, out object resultAsset)
         {

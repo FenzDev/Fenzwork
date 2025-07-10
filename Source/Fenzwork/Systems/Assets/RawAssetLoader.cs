@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 namespace Fenzwork.Systems.Assets
 {
 
-    public abstract class AssetRawLoader
+    public abstract class RawAssetLoader
     {
         protected abstract void Load(Stream stream, AssetID assetID, out object resultAsset);
         internal void DoLoad(Stream stream, AssetID assetID, out object resultAsset) => Load(stream, assetID, out resultAsset);

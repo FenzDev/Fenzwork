@@ -18,7 +18,7 @@ namespace Fenzwork.Systems.Assets
         /// <summary>
         /// This is for when you need to store data that presists loading/unloading process unlike Content.
         /// </summary>
-        public object? StaticSharedData { get; internal set; }
+        public object? PresistantData { get; internal set; }
         public AssetsAssembly Source { get; internal set; }
         
         private List<WeakReference> _AssetReferences = [];

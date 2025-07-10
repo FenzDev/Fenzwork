@@ -43,7 +43,7 @@ namespace Fenzwork
         /// <summary>
         /// Gets the list of registered control bindings.
         /// </summary>
-        public static List<ControlBinding> Bindings { get; } = new List<ControlBinding>();
+        public static List<ControlBinding> Bindings { get; } = [ ];
 
         /// <summary>
         /// The threshold for gamepad thumbstick activation.

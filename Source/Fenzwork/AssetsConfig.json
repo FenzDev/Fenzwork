@@ -1,5 +1,6 @@
 {
-  "AssetsDirectoryName": "Content",
+  "AssetsDirectoryName": "Assets",
+
   "BuildOnRuntime": false,
   "EnableDomainFolders": false,
 
@@ -7,25 +8,37 @@
   "BuildCompress": false,
   "BuildReferences": [],
 
-  "Atlas": {
-    "MaxTextureSize": 4096,
-    "SpritePadding": 2,
-    "PackFrom": "Sprites/",
-    "PackInto": "Textures/"
-  },
-
   "Assets": [
+    {
+      "From": "GUI/Views/",
+      "Include": [ "*.gui.xml" ],
+      "Method": "copy",
+      "LoadAs": "Fenzwork.Systems.GUI.GuiView, Fenzwork"
+    },
+    {
+      "From": "Textures/",
+      "Include": [ "*.metadata" ],
+      "Method": "copy",
+      "LoadAs": "Fenzwork.Graphics.AtlasMetadata, Fenzwork"
+    },
     {
       "From": "Sprites/",
       "Include": [ "*.png" ],
       "Method": "pack",
-      "LoadAs": "Fenzwork.Graphics.Sprite"
+      "LoadAs": "Fenzwork.Graphics.Sprite, Fenzwork",
+      "PackConfig": {
+        "MaxTextureSize": 4096,
+        "SpritePadding": 2,
+        "MetadataName": "TextureMap.metadata",
+        "AtlasNamePrefix": "TextureMap_",
+        "PackInto": "Textures/"
+      }
     },
     {
       "From": "Textures/",
       "Include": [ "*.png" ],
       "Method": "build",
-      "LoadAs": "Microsoft.Xna.Framework.Graphics.Texture2D",
+      "LoadAs": "Microsoft.Xna.Framework.Graphics.Texture2D, MonoGame.Framework",
       "BuildImporter": "TextureImporter",
       "BuildProcessor": "TextureProcessor",
       "BuildProcessorParams": [
@@ -33,15 +46,14 @@
         "GenerateMipmaps=False",
         "PremultiplyAlpha=True",
         "ResizeToPowerOfTwo=False",
-        "MakeSquare=False",
-        "TextureFormat=Color"
+        "MakeSquare=False"
       ]
     },
     {
       "From": "Shaders/",
       "Include": [ "*.fx" ],
       "Method": "build",
-      "LoadAs": "Microsoft.Xna.Framework.Graphics.Effect",
+      "LoadAs": "Microsoft.Xna.Framework.Graphics.Effect, MonoGame.Framework",
       "BuildImporter": "EffectImporter",
       "BuildProcessor": "EffectProcessor"
     },

@@ -37,6 +37,9 @@ namespace Fenzwork.Systems.Input
         /// Gets the modifiers associated with the key.
         /// </summary>
         public KeyModifiers Modifiers { get; }
+
+        public static implicit operator KeyCombination(Keys key) => new (key);
+        public static implicit operator KeyCombination((Keys,KeyModifiers) key) => new (key.Item1, key.Item2);
     }
 
     /// <summary>

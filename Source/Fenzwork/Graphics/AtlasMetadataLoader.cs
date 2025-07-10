@@ -1,11 +1,11 @@
-﻿using Fenzwork.Graphics;
+﻿using Fenzwork.Systems.Assets;
 using Microsoft.Xna.Framework.Graphics;
 using System.Collections.Generic;
 using System.IO;
 
-namespace Fenzwork.Systems.Assets.Loaders
+namespace Fenzwork.Graphics
 {
-    public class AtlasMetadataLoader : AssetRawLoader
+    public class AtlasMetadataLoader : RawAssetLoader
     {
         protected override void Load(Stream stream, AssetID assetID, out object resultAsset)
         {

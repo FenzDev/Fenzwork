@@ -9,12 +9,11 @@
 	<IsUsingSourceGenTool>True</IsUsingSourceGenTool>
   </PropertyGroup>
 
+	
+	
   <ItemGroup>
-    <None Remove="AssetsConfig.json" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <AssetsConfig Include="AssetsConfig.json" />
+	  <None Include="../../Source/Fenzwork/AssetsConfig.json" />
+	  <AssetsConfig Include="../../Source/Fenzwork/AssetsConfig.json" />
   </ItemGroup>
   
 	<ItemGroup>

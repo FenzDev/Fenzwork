@@ -1,5 +1,6 @@
 ﻿using Fenzwork.Graphics;
 using Fenzwork.Systems.Assets.Loaders;
+using Fenzwork.Systems.GUI;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
@@ -9,6 +10,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.IO.Pipes;
 using System.Linq;
+using System.Numerics;
 using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
@@ -17,14 +19,20 @@ namespace Fenzwork.Systems.Assets
 {
     public record struct AssetID(string AssetName, Type AssetType)
     {
-        public override string ToString() => $"{AssetName} ({AssetType.Name})";
+        public override readonly string ToString() => $"{AssetName} ({AssetType.Name})";
+        public static implicit operator string(AssetID asset) => asset.ToString();
     }
 
     public static class AssetsManager
     {
         public static AssetsAutoLoadingWay AutoLoadingWay = AssetsAutoLoadingWay.Lazy;
 
-        public static Dictionary<Type, AssetRawLoader> RawAssetLoaders = new() { [typeof(string)] = new TextLoader(), [typeof(AtlasMetadata)] = new AtlasMetadataLoader() } ;
+        public static Dictionary<Type, RawAssetLoader> RawAssetLoaders = new()
+        {
+            [typeof(string)] = new TextLoader(),
+            [typeof(AtlasMetadata)] = new AtlasMetadataLoader(),
+            [typeof(GuiView)] = new GuiLoader(GuiAssetType.View)
+        };
         internal static Dictionary<AssetID, AssetRoot> _AssetsBank = [];
         public static Dictionary<string, AssetRoot> DebugPaths = [];
 
@@ -132,7 +140,7 @@ namespace Fenzwork.Systems.Assets
 
             if (method == "pack")
             {
-                assetRoot.StaticSharedData = new SpriteStaticData();
+                assetRoot.PresistantData ??= new SpritePresistantData();
                 assetRoot.Param = Get<AtlasMetadata>((string)otherParam!);
             }
 
@@ -198,6 +206,9 @@ namespace Fenzwork.Systems.Assets
             if (assetRoot.Source is null || !assetRoot.IsLoaded)
                 return;
 
+            if (assetRoot.Content is IDataEmbededAsset dataEmbededAsset)
+                assetRoot.PresistantData = dataEmbededAsset.PresistantData;
+
             var method = assetRoot.Source.RootsWithTheirMethod[assetRoot];
 
             if (method.Equals("build"))
@@ -222,7 +233,11 @@ namespace Fenzwork.Systems.Assets
                 LoadCopyAsset(assetRoot);
             else if (method.Equals("pack"))
                 LoadSpriteAsset(assetRoot);
-
+            
+            if (assetRoot.Content is IDataEmbededAsset dataEmbededAsset)
+            {
+                dataEmbededAsset.PresistantData = assetRoot.PresistantData;
+            }
         }
 
         internal static void LoadSpriteAsset(AssetRoot assetRoot)
@@ -230,8 +245,7 @@ namespace Fenzwork.Systems.Assets
             var sprite = new Sprite() { _Metadata = (Asset<AtlasMetadata>)assetRoot.Param };
             var spriteMetadata = sprite._Metadata.Content.Sprites[assetRoot];
             sprite.Texture = sprite._Metadata.Content.Atlases[spriteMetadata.AtlasId].CreateAndAddAssetReference<Texture2D>();
-            sprite.SourceRect = new (spriteMetadata.X, spriteMetadata.Y, spriteMetadata.Width, spriteMetadata.Height);
-            sprite.FrameData = (SpriteStaticData)assetRoot.StaticSharedData!;
+            sprite.SourceRect = new(spriteMetadata.X, spriteMetadata.Y, spriteMetadata.Width, spriteMetadata.Height);
 
             assetRoot.Content = sprite;
             assetRoot.IsLoaded = true;
