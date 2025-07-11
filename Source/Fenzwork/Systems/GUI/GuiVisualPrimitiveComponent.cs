@@ -1,15 +1,17 @@
 ﻿using Microsoft.Xna.Framework.Graphics;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Fenzwork.Systems.GUI
 {
     public abstract class GuiVisualPrimitiveComponent : GuiComponent
     {
-        protected internal abstract void GenerateGeometry(out VertexPositionColorTexture[] vertices, out ushort[] indices, out GuiBatch metadata);
+        internal int _IndeciesRelativeOffset;
+        internal int _GPUBufferIndeciesCount;
+        internal int _GPUBufferVerticesOffset;
+        internal int _GPUBufferVerticesCount;
+        internal int _ReneringBufferIndex;
+        protected internal abstract void GenerateGeometry(out VertexPositionColorTexture[] vertices, out Func<ushort, ushort[]> indicesFactory, out int indicesCount, out GuiGPUStates batch);
 
+        protected internal void MarkDirty() => View.Renderer.MarkDirty(this);
     }
 }

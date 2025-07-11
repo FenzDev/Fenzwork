@@ -9,7 +9,6 @@ namespace Fenzwork.Systems.GUI
         protected void ResetGeometry()
         {
             
-            throw new System.NotImplementedException();
         }
     }
 }

@@ -27,6 +27,7 @@ namespace Fenzwork.Systems.Assets
     {
         public static AssetsAutoLoadingWay AutoLoadingWay = AssetsAutoLoadingWay.Lazy;
 
+
         public static Dictionary<Type, RawAssetLoader> RawAssetLoaders = new()
         {
             [typeof(string)] = new TextLoader(),
@@ -165,6 +166,8 @@ namespace Fenzwork.Systems.Assets
             if (assetRoot.AssetReferencesCount > 0 && (wasSourcless || !assetRoot.IsLoaded))
                 LoadAsset(assetRoot, true);
 
+
+
             return assetRoot;
         }
 
@@ -206,6 +209,8 @@ namespace Fenzwork.Systems.Assets
             if (assetRoot.Source is null || !assetRoot.IsLoaded)
                 return;
 
+            assetRoot.InvokeOnUnloading();
+
             if (assetRoot.Content is IDataEmbededAsset dataEmbededAsset)
                 assetRoot.PresistantData = dataEmbededAsset.PresistantData;
 
@@ -238,6 +243,8 @@ namespace Fenzwork.Systems.Assets
             {
                 dataEmbededAsset.PresistantData = assetRoot.PresistantData;
             }
+
+            assetRoot.InvokeOnLoaded();
         }
 
         internal static void LoadSpriteAsset(AssetRoot assetRoot)

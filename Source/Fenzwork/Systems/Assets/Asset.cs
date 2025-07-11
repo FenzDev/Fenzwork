@@ -12,19 +12,33 @@ namespace Fenzwork.Systems.Assets
     /// <typeparam name="T"></typeparam>
     public sealed class Asset<T> : IDisposable
     {
+        internal Asset(string untrackedId, T untrackedContent) 
+        {
+            _UntrackedID = new (untrackedId, typeof(T));
+            _UntrackedContent = untrackedContent;
+        }
         internal Asset(AssetRoot root)
         {
             _Root = root;
+            _Root.OnLoaded += OnLoaded;
+            _Root.OnUnloading += OnUnloading;
         }
 
-        private AssetRoot _Root;
+        private readonly AssetRoot _Root;
         public AssetRoot Root => _Root;
-        public AssetID ID => _Root.ID;
-        public T Content => (T)_Root.Content!;
+        private readonly AssetID _UntrackedID;
+        public AssetID ID => _Root == null ? _UntrackedID : _Root.ID;
+        private readonly T _UntrackedContent; 
+        public T Content => _Root == null ? _UntrackedContent: (T)_Root.Content!;
 
         public override string ToString() => _Root.ID.ToString();
 
-        public static implicit operator T(Asset<T> asset) => (T)asset.Content;
+        public override int GetHashCode() => Content?.GetHashCode() ?? 0;
+
+        public static implicit operator T(Asset<T> asset) => asset.Content;
+
+        public event Action OnLoaded;
+        public event Action OnUnloading;
 
         public void Dispose() => Dispose(true);
 

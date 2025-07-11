@@ -48,6 +48,11 @@ namespace Fenzwork.Systems.Assets
         }
 
         public override string ToString() => ID.ToString();
+
+        internal void InvokeOnLoaded() => OnLoaded();
+        internal void InvokeOnUnloading() => OnUnloading();
+        public event Action OnLoaded;
+        public event Action OnUnloading;
     }
 
 }
