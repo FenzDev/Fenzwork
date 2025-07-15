@@ -8,7 +8,7 @@ namespace Fenzwork.Systems.Assets
 {
     public sealed class AssetRoot
     {
-        internal AssetRoot() { }
+        internal AssetRoot() { OnLoaded += DummyMethod; OnUnloading += DummyMethod; }
 
         public AssetID ID { get; init; }
         public object? Content { get; internal set; }
@@ -49,6 +49,7 @@ namespace Fenzwork.Systems.Assets
 
         public override string ToString() => ID.ToString();
 
+        internal void DummyMethod() {}
         internal void InvokeOnLoaded() => OnLoaded();
         internal void InvokeOnUnloading() => OnUnloading();
         public event Action OnLoaded;

@@ -10,8 +10,12 @@ namespace Fenzwork.Systems.GUI
         public GuiRenderer Renderer { get; internal set; }
         public Dictionary<string, Bindable> VariablesContext { get; private set; } = [];
 
-        public object PresistantData { get => VariablesContext; set => VariablesContext = (Dictionary<string,IBindable>)value; }
+        public object PresistantData { get => VariablesContext; set => VariablesContext = (Dictionary<string,Bindable>)value; }
     
+        public bool TryGetBind(string name, out Bindable bind)
+        {
+            return VariablesContext.TryGetValue(name, out bind);
+        }
         public Bindable GetBind(string name)
         {
             if (VariablesContext.TryGetValue(name, out var bind))

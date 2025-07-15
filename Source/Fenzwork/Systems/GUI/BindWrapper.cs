@@ -20,7 +20,8 @@ namespace Fenzwork.Systems.GUI
                 return;
 
             Content = newValue;
-            OnChange(componentSender);
+            if (OnChange.GetInvocationList().Length > 0)
+                OnChange(componentSender);
         }
     }
 

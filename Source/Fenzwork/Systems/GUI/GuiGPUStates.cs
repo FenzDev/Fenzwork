@@ -21,10 +21,10 @@ namespace Fenzwork.Systems.GUI
             CreateHashCode();
         }
 
-        public readonly bool IsActive = true;
-        public readonly Asset<Texture2D> Texture;
-        public readonly Asset<Effect> Effect;
-        public readonly Rectangle? ClipMask;
+        public bool IsActive = true;
+        public Asset<Texture2D> Texture;
+        public Asset<Effect> Effect;
+        public Rectangle? ClipMask;
 
         private int? _Hash;
         private int CreateHashCode() => (_Hash = HashCode.Combine(Texture.Content, Effect.Content, ClipMask)).Value;

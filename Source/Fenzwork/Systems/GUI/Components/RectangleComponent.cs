@@ -8,8 +8,12 @@ using System.Xml;
 
 namespace Fenzwork.Systems.GUI.Components
 {
-    public class RectangleComponent : GuiVisualPrimitiveComponent
+    public class RectangleComponent : GuiVisualComponent
     {
+        public RectangleComponent() : base()
+        {
+        }
+
         public BindWrapper<int> X = 100;
         public BindWrapper<int> Y = 100;
         public BindWrapper<int> Width = 100;
@@ -21,7 +25,7 @@ namespace Fenzwork.Systems.GUI.Components
         public int _FinalWidth;
         public int _FinalHeight;
 
-        protected internal override void GenerateGeometry(out VertexPositionColorTexture[] vertices, out Func<ushort, ushort[]> indicesFactory, out int indicesCount, out GuiGPUStates states)
+        protected internal override void GenerateGeometry(out VertexPositionColorTexture[] vertices, out Func<int, ushort[]> indicesFactory, out int indicesCount, out GuiGPUStates states)
         {
             VertexPositionColorTexture TL = new(new(X, Y, 0f), Fill, new(0f, 0f));
             VertexPositionColorTexture TR = new(new(X + Width, Y, 0f), Fill, new(1f, 0f));
@@ -31,7 +35,7 @@ namespace Fenzwork.Systems.GUI.Components
             vertices = [TL, TR, BL, BR];
             indicesCount = 6;
             indicesFactory = (offset) => [
-                offset,
+                (ushort)offset,
                 (ushort)(offset + 2),
                 (ushort)(offset + 1),
                 (ushort)(offset + 1),
@@ -58,19 +62,25 @@ namespace Fenzwork.Systems.GUI.Components
 
         private void OnPropertyChanged(GuiComponent? componentSender) => MarkDirty();
 
-        private void ParseIntBind(ref BindWrapper<int> field, string content)
+        private void ParseIntBind(ref BindWrapper<int> property, string? xmlAttributeContent)
         {
-            if (TryGetBind(ref field, content))
+            if (xmlAttributeContent == null)
                 return;
 
-            field = new BindWrapper<int>(new () { Content = int.Parse(content)});
+            if (TryGetBindFromContext(ref property, xmlAttributeContent))
+                return;
+
+            property = new BindWrapper<int>(new () { Content = int.Parse(xmlAttributeContent)});
         }
-        private void ParseColorBind(ref BindWrapper<Color> field, string content)
+        private void ParseColorBind(ref BindWrapper<Color> property, string? xmlAttributeContent)
         {
-            if (TryGetBind(ref field, content))
+            if (xmlAttributeContent == null)
                 return;
 
-            field = new BindWrapper<Color>(new () { Content = ParseHexColor(content)});
+            if (TryGetBindFromContext(ref property, xmlAttributeContent))
+                return;
+
+            property = new BindWrapper<Color>(new () { Content = ParseHexColor(xmlAttributeContent)});
             
         }
 

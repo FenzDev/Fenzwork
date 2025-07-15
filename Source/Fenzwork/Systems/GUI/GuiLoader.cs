@@ -34,6 +34,8 @@ namespace Fenzwork.Systems.GUI
         private GuiView LoadView(Stream stream, AssetID assetID)
         {
             var view = new GuiView();
+            view.View = view;
+
             var reader = XmlReader.Create(stream, new XmlReaderSettings { IgnoreComments = true,  });
 
             try
@@ -60,11 +62,13 @@ namespace Fenzwork.Systems.GUI
 
         private void ReadElement(GuiParent guiParent, XmlReader reader )
         {
-
             if (GuiManager._AvailableElements.TryGetValue(reader.Name, out var type))
             {
-                var obj = (GuiVisualPrimitiveComponent)Activator.CreateInstance(type);
+                var obj = (GuiComponent)Activator.CreateInstance(type);
+                obj.View = guiParent.View;
+                
                 obj.Read(reader);
+                
                 guiParent.Children.Add(obj);
             }
             else

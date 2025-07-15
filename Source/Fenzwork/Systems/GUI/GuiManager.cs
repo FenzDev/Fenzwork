@@ -20,7 +20,18 @@ namespace Fenzwork.Systems.GUI
 
         public static void SetView(Asset<GuiView> view)
         {
+            view.Content.Renderer = Renderer;
             CurrentView = view;
+            CleanChildrenGraphics(view);
+        }
+
+        private static void CleanChildrenGraphics(GuiParent parent)
+        {
+            for (int c = 0; c < parent.Children.Count; c++)
+                if (parent.Children[c] is GuiParent subParent)
+                    CleanChildrenGraphics(subParent);
+                else if (parent.Children[c] is GuiVisualComponent visual)
+                    visual.MarkDirty();
 
         }
 
