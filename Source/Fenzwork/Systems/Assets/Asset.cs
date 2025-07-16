@@ -31,7 +31,7 @@ namespace Fenzwork.Systems.Assets
         private readonly T _UntrackedContent; 
         public T Content => _Root == null ? _UntrackedContent: (T)_Root.Content!;
 
-        public override string ToString() => _Root.ID.ToString();
+        public override string ToString() => ID.ToString();
 
         public override int GetHashCode() => Content?.GetHashCode() ?? 0;
 

@@ -43,6 +43,8 @@ namespace Fenzwork.Systems.GUI
 
         public event BindableEventHandler OnChange;
 
+        public override string ToString() => string.IsNullOrEmpty(VariableName) ? $"'{Content}'" : $"'{{{VariableName}}}";
+
         public void ChangeValue(GuiComponent? componentSender, T newValue) => _Bindable.ChangeValue(componentSender, newValue);
 
         public static implicit operator BindWrapper<T>(Bindable instance) => new BindWrapper<T>(instance);

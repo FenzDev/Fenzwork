@@ -33,7 +33,7 @@ namespace Fenzwork.GenLib
             if (mainConfig.EnableDomainFolders)
                 foreach (var assetGroupConfig in mainConfig.Assets)
                 {
-                    assetGroupConfig.From = assetGroupConfig.From.TrimEnd('/', '\\');
+                    assetGroupConfig.From = assetGroupConfig.From.Replace('\\', Path.DirectorySeparatorChar).Replace('/', Path.DirectorySeparatorChar);
                     assetGroupConfig.Method = assetGroupConfig.Method.ToLower();
 
                     foreach (var dir in Directory.EnumerateDirectories(assetsDirPath))
@@ -50,7 +50,7 @@ namespace Fenzwork.GenLib
 
                 foreach (var assetGroupConfig in mainConfig.Assets)
                 {
-                    assetGroupConfig.From = assetGroupConfig.From.TrimEnd('/', '\\');
+                    assetGroupConfig.From = assetGroupConfig.From.Replace('\\', Path.DirectorySeparatorChar).Replace('/', Path.DirectorySeparatorChar);
                     assetGroupConfig.Method = assetGroupConfig.Method.ToLower();
 
                     if (assetGroupConfig.Method.Equals("ignore"))

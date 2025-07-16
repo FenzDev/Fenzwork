@@ -108,9 +108,9 @@ namespace Fenzwork.Desktop
         {
             if (_WatchersAssemblies.TryGetValue((FileSystemWatcher)sender, out var asm))
             {
-                if (IsNotAsset(e.OldFullPath, e.OldName))
+                if (!IsNotAsset(e.OldFullPath, e.OldName))
                     ValidatedRequestForUnregister(e.OldName, e.OldFullPath, asm);
-                if (IsNotAsset(e.FullPath, e.Name))
+                if (!IsNotAsset(e.FullPath, e.Name))
                     ValidatedRequestForRegister(e.Name, e.FullPath, asm);
             }
             

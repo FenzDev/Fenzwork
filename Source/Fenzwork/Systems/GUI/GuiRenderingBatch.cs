@@ -17,10 +17,10 @@ namespace Fenzwork.Systems.GUI
         public List<GuiVisualComponent> Components = [];
         public int IndicesOffset;
         public int IndicesCount;
-        public int IndicesCapacity;
+        public int IndicesCapacity = 6;
         public int VerticesOffset;
         public int VerticesCount;
-        public int VerticesCapacity;
+        public int VerticesCapacity = 4;
     }
 
 }
