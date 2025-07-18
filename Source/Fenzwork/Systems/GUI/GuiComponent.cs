@@ -13,7 +13,7 @@ namespace Fenzwork.Systems.GUI
         protected internal GuiView View;
 
         public int Level { get; internal set; }
-        public BindWrapper<bool> IsVisible { get; set; }
+        public BindWrapper<bool> IsVisible { get; set; } = true;
 
         protected internal virtual void Read(XmlReader reader) { }
 

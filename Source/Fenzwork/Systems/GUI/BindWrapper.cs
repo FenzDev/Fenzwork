@@ -20,8 +20,7 @@ namespace Fenzwork.Systems.GUI
                 return;
 
             Content = newValue;
-            if (OnChange.GetInvocationList().Length > 0)
-                OnChange(componentSender);
+            OnChange?.Invoke(componentSender);
         }
     }
 
@@ -32,7 +31,7 @@ namespace Fenzwork.Systems.GUI
         public BindWrapper(Bindable bindable)
         {
             _Bindable = bindable;
-            bindable.OnChange += OnChange;
+            _Bindable.OnChange += HandleBindableChanged;
         }
 
         public Bindable Bindable => _Bindable;
@@ -42,6 +41,11 @@ namespace Fenzwork.Systems.GUI
         public T Content { get => (T)Bindable.Content; internal set => Bindable.Content = value; }
 
         public event BindableEventHandler OnChange;
+
+        private void HandleBindableChanged(GuiComponent? sender)
+        {
+            OnChange?.Invoke(sender);
+        }
 
         public override string ToString() => string.IsNullOrEmpty(VariableName) ? $"'{Content}'" : $"'{{{VariableName}}}";
 

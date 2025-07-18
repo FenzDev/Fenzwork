@@ -8,8 +8,11 @@ namespace Fenzwork.Systems.GUI
     {
         protected GuiVisualComponent()
         {
-            MarkDirty();
+            IsVisible.OnChange += IsVisible_Changed;
+             MarkDirty();
         }
+
+        private void IsVisible_Changed(GuiComponent componentSender) => MarkDirty();
 
         internal int _IndexInBatch;
         internal GuiRenderingBatch _RenderingBatch;
@@ -18,7 +21,7 @@ namespace Fenzwork.Systems.GUI
         internal int _VRelOffset = -1;
         internal int _VCapacity;
 
-        protected internal abstract void GenerateGeometry(out VertexPositionColorTexture[] vertices, out Func<int, ushort[]> indicesFactory, out int indicesCount, out GuiGPUStates batch);
+        protected internal abstract void GenerateGeometry(out VertexPositionColorTexture[] vertices, out Func<int, ushort[]> indicesFactory, out GuiGPUStates batch);
 
         protected internal void MarkDirty() => View?.Renderer.CleanDirtyComponent(this);
     }

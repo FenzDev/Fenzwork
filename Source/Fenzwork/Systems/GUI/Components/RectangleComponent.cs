@@ -25,7 +25,7 @@ namespace Fenzwork.Systems.GUI.Components
         public int _FinalWidth;
         public int _FinalHeight;
 
-        protected internal override void GenerateGeometry(out VertexPositionColorTexture[] vertices, out Func<int, ushort[]> indicesFactory, out int indicesCount, out GuiGPUStates states)
+        protected internal override void GenerateGeometry(out VertexPositionColorTexture[] vertices, out Func<int, ushort[]> indicesFactory, out GuiGPUStates states)
         {
             VertexPositionColorTexture TL = new(new(X, Y, 0f), Fill, new(0f, 0f));
             VertexPositionColorTexture TR = new(new(X + Width, Y, 0f), Fill, new(1f, 0f));
@@ -33,7 +33,6 @@ namespace Fenzwork.Systems.GUI.Components
             VertexPositionColorTexture BR = new(new(X + Width, Y + Height, 0f), Fill, new(1f, 1f));
 
             vertices = [TL, TR, BL, BR];
-            indicesCount = 6;
             indicesFactory = (offset) => [
                 (ushort)offset,
                 (ushort)(offset + 2),

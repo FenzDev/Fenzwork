@@ -151,19 +151,19 @@ namespace Fenzwork.Systems.Assets
                 DebugPaths.TryAdd(assetDebugFullPath, assetRoot);
             }
 
-            var wasSourcless = false;
+            var loadAsset = false;
             var regestringAsmHasMorePriority = AssetsAssemblies.IndexOf(assetRoot.Source) < AssetsAssemblies.IndexOf(asm);
             if (assetRoot.Source == null || regestringAsmHasMorePriority)
             {
-                wasSourcless = true;
+                loadAsset = true;
 
                 assetRoot.Source = asm;
 
-                if (regestringAsmHasMorePriority && assetRoot.IsLoaded)
+                if (assetRoot.IsLoaded)
                     UnloadAsset(assetRoot);
             }
 
-            if (assetRoot.AssetReferencesCount > 0 && (wasSourcless || !assetRoot.IsLoaded))
+            if (assetRoot.AssetReferencesCount > 0 && (loadAsset || !assetRoot.IsLoaded))
                 LoadAsset(assetRoot, true);
 
 
@@ -206,6 +206,7 @@ namespace Fenzwork.Systems.Assets
 
         internal static void UnloadAsset(AssetRoot assetRoot)
         {
+            // don't unload when no source is specified so we don't remain with an empty asset
             if (assetRoot.Source is null || !assetRoot.IsLoaded)
                 return;
 
